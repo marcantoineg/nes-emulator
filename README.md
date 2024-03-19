@@ -1,4 +1,4 @@
-# nes-emulator
+# nes-emulator 🎮
 Pretty self explanatory title really so here's some links:
 
 - [NES emu tutorial](https://bugzmanov.github.io/nes_ebook/)
