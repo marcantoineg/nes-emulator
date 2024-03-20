@@ -1,0 +1,23 @@
+on:
+  push:
+    branches:
+      - 'main'
+
+name: CI
+
+jobs:
+  build_and_test:
+    name: Build & Test
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      
+      - name: build
+        run: cargo build --verbose
+
+      - name: tests
+        run: cargo test --verbose
