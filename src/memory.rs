@@ -17,7 +17,7 @@ impl Memory {
         let lo = self.read(addr) as u16;
         let hi = self.read(addr + 1) as u16;
 
-        return (hi << 8) | (lo as u16)
+        return (hi << 8) | lo;
     }
 
     pub fn write_u16(&mut self, addr: u16, data: u16) {
