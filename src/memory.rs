@@ -15,9 +15,9 @@ impl Memory {
 
     pub fn read_u16(&mut self, addr: u16) -> u16 {
         let lo = self.read(addr) as u16;
-        let hi = self.read(addr + 1) as u16;
+        let hi = self.read(addr.wrapping_add(1)) as u16;
 
-        return (hi << 8) | lo;
+        return (hi << 8) | (lo as u16);
     }
 
     pub fn write_u16(&mut self, addr: u16, data: u16) {
@@ -25,7 +25,7 @@ impl Memory {
         let lo = (data & 0xFF) as u8;
 
         self.write(addr, lo);
-        self.write(addr + 1, hi);
+        self.write(addr.wrapping_add(1), hi);
     }
 
     pub fn write(&mut self, addr: u16, data: u8) {

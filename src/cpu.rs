@@ -6,8 +6,20 @@ pub struct CPU {
     pub register_y: u8,
     pub status: u8, // NVB_DIZC
     pub program_counter: u16,
+    pub memory: Memory,
+}
 
-    memory: Memory,
+enum AddressingMode {
+    Immediate,
+    ZeroPage,
+    ZeroPageX,
+    ZeroPageY,
+    Absolute,
+    AbsoluteX,
+    AbsoluteY,
+    IndirectX,
+    IndirectY,
+    None,
 }
 
 impl CPU {
@@ -50,6 +62,50 @@ impl CPU {
         self.program_counter = self.memory.read_u16(0xFFFC);
     }
 
+    fn get_op_target_addr(&mut self, mode: AddressingMode) -> u16 {
+        use AddressingMode::*;
+        match mode {
+            Immediate => {
+                return self.program_counter;
+            },
+            ZeroPage => {
+                return self.memory.read(self.program_counter) as u16;
+            },
+            ZeroPageX => {
+                let addr = self.memory.read(self.program_counter) as u16;
+                return addr.wrapping_add(self.register_x as u16);
+            },
+            ZeroPageY => {
+                let addr = self.memory.read(self.program_counter) as u16;
+                return addr.wrapping_add(self.register_y as u16);
+            },
+            Absolute => {
+                return self.memory.read_u16(self.program_counter);
+            },
+            AbsoluteX => {
+                let addr = self.memory.read_u16(self.program_counter);
+                return addr.wrapping_add(self.register_x as u16);
+            },
+            AbsoluteY => {
+                let addr = self.memory.read_u16(self.program_counter);
+                return addr.wrapping_add(self.register_y as u16);
+            },
+            IndirectX => {
+                let mut addr = self.memory.read(self.program_counter);
+                addr = addr.wrapping_add(self.register_x);
+                return self.memory.read_u16(addr as u16);
+            },
+            IndirectY => {
+                let mut addr = self.memory.read(self.program_counter);
+                addr = addr.wrapping_add(self.register_y);
+                return self.memory.read_u16(addr as u16);
+            },
+            None => {
+                panic!("type not supported");
+            }
+        }
+    }
+
     fn run(&mut self) {
         loop {
             let operation_code = self.memory.read(self.program_counter);
@@ -58,13 +114,36 @@ impl CPU {
             match operation_code {
                 // LDA
                 0xA9 => {
-                    let param = self.memory.read(self.program_counter);
+                    self.lda(AddressingMode::Immediate);
                     self.program_counter += 1;
-            
-                    self.register_a = param;
-
-                    self.set_zero_flag(self.register_a);
-                    self.set_negative_flag(self.register_a);
+                },
+                0xA5 => {
+                    self.lda(AddressingMode::ZeroPage);
+                    self.program_counter += 1;
+                },
+                0xB5 => {
+                    self.lda(AddressingMode::ZeroPageX);
+                    self.program_counter += 2;
+                },
+                0xAD => {
+                    self.lda(AddressingMode::Absolute);
+                    self.program_counter += 2;
+                },
+                0xBD => {
+                    self.lda(AddressingMode::AbsoluteX);
+                    self.program_counter += 2;
+                },
+                0xB9 => {
+                    self.lda(AddressingMode::AbsoluteY);
+                    self.program_counter += 2;
+                },
+                0xA1 => {
+                    self.lda(AddressingMode::IndirectX);
+                    self.program_counter += 1;
+                },
+                0xB1 => {
+                    self.lda(AddressingMode::IndirectY);
+                    self.program_counter += 1;
                 },
 
                 // TAX
@@ -112,6 +191,14 @@ impl CPU {
         }
     }
 
+    fn lda(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        self.register_a = self.memory.read(addr);
+
+        self.set_zero_flag(self.register_a);
+        self.set_negative_flag(self.register_a);
+    }
+
     pub fn zero_flag(&mut self) -> bool {
         return self.status & 0b0000_0010 != 0
     }
@@ -120,5 +207,3 @@ impl CPU {
         return self.status & 0b1000_0000 != 0
     }
 }
- 
- 
