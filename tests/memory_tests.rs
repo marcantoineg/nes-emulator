@@ -22,3 +22,13 @@ fn test_read_u16() {
     assert_eq!(result_1, 0x0001);
     assert_eq!(result_2, 0x0200);
 }
+
+#[test]
+fn test_lead_program() {
+    let program = vec![0xa9, 0xc0, 0xaa, 0xe8, 0x00];
+
+    let mut mem = Memory::new();
+    mem.load_program(program.clone());
+
+    assert_eq!(mem.memory[0x8000..0x8005], program);
+}

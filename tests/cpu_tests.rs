@@ -79,10 +79,10 @@ fn test_0xe8_inx_implied_increment_x() {
 #[test]
 fn test_0xe8_inx_implied_overflow() {
     let mut cpu = CPU::new();
-     cpu.register_x = 0xff;
-     cpu.load_and_run_without_reset(vec![0xe8, 0xe8, 0x00]);
+    cpu.register_x = 0xff;
+    cpu.load_and_run_without_reset(vec![0xe8, 0xe8, 0x00]);
 
-     assert_eq!(cpu.register_x, 1)
+    assert_eq!(cpu.register_x, 1)
 }
 
 #[test]
