@@ -6,3 +6,4 @@ A (somewhat) simple emulator of the [Nintendo Entertainment System](https://en.w
 ## CPU references
 - [6502 cpu instructions](https://www.nesdev.org/obelisk-6502-guide/reference.html)
 - [6502 cpu instructions - II](http://www.6502.org/tutorials/6502opcodes.html)
+- [js emu](https://itema-as.github.io/6502js/)
