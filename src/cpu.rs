@@ -43,6 +43,7 @@ impl CPU {
             (0xBC, Operation::new(LDY, AbsoluteX, 3)),
 
             (0xAA, Operation::new(TAX, Implied, 1)),
+            (0xA8, Operation::new(TAY, Implied, 1)),
             
             (0xE8, Operation::new(INX, Implied, 2)),
         ]);
@@ -144,15 +145,9 @@ impl CPU {
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
 
-                // TAX
-                TAX => {
-                    self.register_x = self.register_a;
+                TAX => self.tax(),
+                TAY => self.tay(),
 
-                    self.set_zero_flag(self.register_x);
-                    self.set_negative_flag(self.register_x);
-                }
-
-                // INX
                 INX => {
                     self.register_x = self.register_x.wrapping_add(1);
 
@@ -163,7 +158,7 @@ impl CPU {
                 // BRK
                 BRK => return,
 
-                _ => todo!(),
+                _ => todo!("op not implemented"),
             }
 
             self.program_counter += (op.bytes - 1) as u16;
@@ -189,6 +184,20 @@ impl CPU {
     fn ldy(&mut self, mode: AddressingMode) {
         let addr = self.get_op_target_addr(mode);
         self.register_y = self.memory.read(addr);
+
+        self.set_zero_flag(self.register_y);
+        self.set_negative_flag(self.register_y);
+    }
+
+    fn tax(&mut self) {
+        self.register_x = self.register_a;
+
+        self.set_zero_flag(self.register_x);
+        self.set_negative_flag(self.register_x);
+    }
+
+    fn tay(&mut self) {
+        self.register_y = self.register_a;
 
         self.set_zero_flag(self.register_y);
         self.set_negative_flag(self.register_y);
