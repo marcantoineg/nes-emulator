@@ -30,6 +30,18 @@ impl CPU {
             (0xA1, Operation::new(LDA, IndirectX, 2)),
             (0xB1, Operation::new(LDA, IndirectY, 2)),
 
+            (0xA2, Operation::new(LDX, Immediate, 2)),
+            (0xA6, Operation::new(LDX, ZeroPage, 2)),
+            (0xB6, Operation::new(LDX, ZeroPageY, 2)),
+            (0xAE, Operation::new(LDX, Absolute, 3)),
+            (0xBE, Operation::new(LDX, AbsoluteY, 3)),
+
+            (0xA0, Operation::new(LDY, Immediate, 2)),
+            (0xA4, Operation::new(LDY, ZeroPage, 2)),
+            (0xB4, Operation::new(LDY, ZeroPageX, 2)),
+            (0xAC, Operation::new(LDY, Absolute, 3)),
+            (0xBC, Operation::new(LDY, AbsoluteX, 3)),
+
             (0xAA, Operation::new(TAX, Implied, 1)),
             
             (0xE8, Operation::new(INX, Implied, 2)),
@@ -84,12 +96,12 @@ impl CPU {
                 return self.memory.read(self.program_counter) as u16;
             }
             ZeroPageX => {
-                let addr = self.memory.read(self.program_counter) as u16;
-                return addr.wrapping_add(self.register_x as u16);
+                let addr = self.memory.read(self.program_counter);
+                return addr.wrapping_add(self.register_x) as u16;
             }
             ZeroPageY => {
-                let addr = self.memory.read(self.program_counter) as u16;
-                return addr.wrapping_add(self.register_y as u16);
+                let addr = self.memory.read(self.program_counter);
+                return addr.wrapping_add(self.register_y) as u16;
             }
             Absolute => {
                 return self.memory.read_u16(self.program_counter);
@@ -128,10 +140,9 @@ impl CPU {
             self.program_counter += 1;
 
             match op.mnemonic_name {
-                LDA => {
-                    let op = self.operations_map[&op_code];
-                    self.lda(op.addressing_mode);
-                }
+                LDA => self.lda(op.addressing_mode),
+                LDX => self.ldx(op.addressing_mode),
+                LDY => self.ldy(op.addressing_mode),
 
                 // TAX
                 TAX => {
@@ -165,6 +176,22 @@ impl CPU {
 
         self.set_zero_flag(self.register_a);
         self.set_negative_flag(self.register_a);
+    }
+
+    fn ldx(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        self.register_x = self.memory.read(addr);
+
+        self.set_zero_flag(self.register_x);
+        self.set_negative_flag(self.register_x);
+    }
+
+    fn ldy(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        self.register_y = self.memory.read(addr);
+
+        self.set_zero_flag(self.register_y);
+        self.set_negative_flag(self.register_y);
     }
 
     fn set_zero_flag(&mut self, value: u8) {
