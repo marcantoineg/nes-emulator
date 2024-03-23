@@ -355,7 +355,7 @@ mod inx {
 
 
 #[test]
-fn test_load_and_run_reet_registeries() {
+fn test_load_and_run_reset_registeries() {
     let mut cpu = CPU::new();
     cpu.register_a = 1;
     cpu.register_x = 2;
