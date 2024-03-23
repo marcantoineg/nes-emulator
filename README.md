@@ -1,4 +1,4 @@
-# nes-emulator 🎮
+# nes-emulator (wip) 🎮
 A (somewhat) simple emulator of the [Nintendo Entertainment System](https://en.wikipedia.org/wiki/Nintendo_Entertainment_System) in [Rust](https://www.rust-lang.org/)
 
 - [NES emulator tutorial](https://bugzmanov.github.io/nes_ebook/)
