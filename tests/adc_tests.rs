@@ -55,3 +55,16 @@ fn test_0x69_adc_immediate_overflow() {
     assert_eq!(cpu.register_a, 0xFE);
     assert_eq!(cpu.status.bits(), 0b1011_0001);
 }
+
+#[test]
+fn test_0x65_adc_zero_page_add_correctly() {
+    let mut cpu = CPU::new();
+    cpu.register_a = 3;
+    cpu.memory.write(200, 0x05);
+
+    cpu.load_and_run_without_reset(vec![0x65, 0x20, 0x00]);
+
+    assert_eq!(cpu.register_a, 8);
+    assert_eq!(cpu.status.bits(), 0b0000_0000);
+    
+}

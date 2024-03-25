@@ -45,6 +45,13 @@ impl CPU {
 
         let operations: HashMap<u8, Operation> = HashMap::from([
             (0x69/*noice*/, Operation::new(ADC, Immediate, 2)),
+            (0x65, Operation::new(ADC, ZeroPage, 2)),
+            (0x75, Operation::new(ADC, ZeroPageX, 2)),
+            (0x6D, Operation::new(ADC, Absolute, 3)),
+            (0x7D, Operation::new(ADC, AbsoluteX, 3)),
+            (0x79, Operation::new(ADC, AbsoluteY, 3)),
+            (0x61, Operation::new(ADC, IndirectX, 2)),
+            (0x71, Operation::new(ADC, IndirectY, 2)),
 
             (0x00, Operation::new(BRK, Implied, 1)),
             
