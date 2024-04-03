@@ -25,6 +25,7 @@ bitflags! {
     ///  | |   +----------- Break Command
     ///  | +--------------- Overflow Flag
     ///  +----------------- Negative Flag
+    #[derive(PartialEq, Eq, Clone, Copy)]
     pub struct Flags: u8 {
         const Init = 0b0011_0000;
         const Carry = 0b0000_0001;
@@ -45,6 +46,13 @@ impl CPU {
 
         let operations: HashMap<u8, Operation> = HashMap::from([
             (0x69/*noice*/, Operation::new(ADC, Immediate, 2)),
+            (0x65, Operation::new(ADC, ZeroPage, 2)),
+            (0x75, Operation::new(ADC, ZeroPageX, 2)),
+            (0x6D, Operation::new(ADC, Absolute, 3)),
+            (0x7D, Operation::new(ADC, AbsoluteX, 3)),
+            (0x79, Operation::new(ADC, AbsoluteY, 3)),
+            (0x61, Operation::new(ADC, IndirectX, 2)),
+            (0x71, Operation::new(ADC, IndirectY, 2)),
 
             (0x00, Operation::new(BRK, Implied, 1)),
             
@@ -143,14 +151,14 @@ impl CPU {
                 return addr.wrapping_add(self.register_y as u16);
             }
             IndirectX => {
-                let mut addr = self.memory.read(self.program_counter);
-                addr = addr.wrapping_add(self.register_x);
+                let zero_page_addr = self.memory.read(self.program_counter);
+                let addr = zero_page_addr.wrapping_add(self.register_x);
                 return self.memory.read_u16(addr as u16);
             }
             IndirectY => {
-                let mut addr = self.memory.read(self.program_counter);
-                addr = addr.wrapping_add(self.register_y);
-                return self.memory.read_u16(addr as u16);
+                let zero_page_addr = self.memory.read(self.program_counter);
+                let addr = self.memory.read_u16(zero_page_addr as u16);
+                return addr.wrapping_add(self.register_y as u16);
             }
             Implied => {
                 panic!("operation does not require target address");
@@ -194,11 +202,17 @@ impl CPU {
 
     fn adc(&mut self, mode: AddressingMode) {
         let addr = self.get_op_target_addr(mode);
-        let mem_value = self.memory.read(addr);
 
-        let wrapped_sum = self.register_a.wrapping_add(mem_value);
+        let mem_value = self.memory.read(addr);
+        let carry_in: u8 = if self.carry_flag() { 1 } else { 0 };
+
+        let wrapped_sum = self.register_a.wrapping_add(mem_value + carry_in);
+
+        let carry_out = wrapped_sum < self.register_a;
+        let overflow = ((self.register_a ^ wrapped_sum) & (mem_value ^ wrapped_sum) & 0x80) != 0;
         
-        self.set_carry_flag(wrapped_sum < self.register_a);
+        self.set_carry_flag(carry_out);
+        self.set_overflow_flag(overflow);
         self.set_register_a(wrapped_sum);
     }
 
@@ -246,10 +260,6 @@ impl CPU {
         self.set_negative_flag(self.register_y)
     }
 
-    pub fn zero_flag(&mut self) -> bool {
-        return self.status.contains(Flags::Zero);
-    }
-
     fn set_zero_flag(&mut self, value: u8) {
         if value == 0 {
             self.status.insert(Flags::Zero);
@@ -266,8 +276,8 @@ impl CPU {
         }
     }
 
-    pub fn negative_flag(&mut self) -> bool {
-        return self.status.contains(Flags::Negative);
+    fn carry_flag(&mut self) -> bool {
+        return self.status.contains(Flags::Carry);
     }
 
     fn set_carry_flag(&mut self, value: bool) {
@@ -275,6 +285,14 @@ impl CPU {
             self.status.insert(Flags::Carry);
         } else {
             self.status.remove(Flags::Carry);
+        }
+    }
+
+    fn set_overflow_flag(&mut self, value: bool) {
+        if value {
+            self.status.insert(Flags::Overflow);
+        } else {
+            self.status.remove(Flags::Overflow);
         }
     }
 }
