@@ -54,6 +54,15 @@ impl CPU {
             (0x61, Operation::new(ADC, IndirectX, 2)),
             (0x71, Operation::new(ADC, IndirectY, 2)),
 
+            (0x29, Operation::new(AND, Immediate, 2)),
+            (0x25, Operation::new(AND, ZeroPage, 2)),
+            (0x35, Operation::new(AND, ZeroPageX, 2)),
+            (0x2D, Operation::new(AND, Absolute, 3)),
+            (0x3D, Operation::new(AND, AbsoluteX, 3)),
+            (0x39, Operation::new(AND, AbsoluteY, 3)),
+            (0x21, Operation::new(AND, IndirectX, 2)),
+            (0x31, Operation::new(AND, IndirectY, 2)),
+
             (0x00, Operation::new(BRK, Implied, 1)),
             
             (0xA9, Operation::new(LDA, Immediate, 2)),
@@ -177,21 +186,14 @@ impl CPU {
 
             match op.mnemonic_name {
                 ADC => self.adc(op.addressing_mode),
-
+                AND => self.and(op.addressing_mode),
+                BRK => return,
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
-
                 TAX => self.tax(),
                 TAY => self.tay(),
-
-                INX => {
-                    let v = self.register_x.wrapping_add(1);
-                    self.set_register_x(v);
-                }
-
-                // BRK
-                BRK => return,
+                INX => self.inx(),
 
                 _ => todo!("op not implemented"),
             }
@@ -214,6 +216,12 @@ impl CPU {
         self.set_carry_flag(carry_out);
         self.set_overflow_flag(overflow);
         self.set_register_a(wrapped_sum);
+    }
+
+    fn and(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        let mem_value = self.memory.read(addr);
+        self.set_register_a(self.register_a & mem_value)
     }
 
     fn lda(&mut self, mode: AddressingMode) {
@@ -240,6 +248,11 @@ impl CPU {
 
     fn tay(&mut self) {
         self.set_register_y(self.register_a);
+    }
+
+    fn inx(&mut self) {
+        let v = self.register_x.wrapping_add(1);
+        self.set_register_x(v);
     }
 
     fn set_register_a(&mut self, value: u8) {
