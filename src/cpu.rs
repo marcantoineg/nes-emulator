@@ -63,6 +63,12 @@ impl CPU {
             (0x21, Operation::new(AND, IndirectX, 2)),
             (0x31, Operation::new(AND, IndirectY, 2)),
 
+            (0x0A, Operation::new(ASL, Implied, 1)),
+            (0x06, Operation::new(ASL, ZeroPage, 2)),
+            (0x16, Operation::new(ASL, ZeroPageX, 2)),
+            (0x0E, Operation::new(ASL, Absolute, 3)),
+            (0x1E, Operation::new(ASL, AbsoluteX, 3)),
+
             (0x00, Operation::new(BRK, Implied, 1)),
             
             (0xA9, Operation::new(LDA, Immediate, 2)),
@@ -187,6 +193,7 @@ impl CPU {
             match op.mnemonic_name {
                 ADC => self.adc(op.addressing_mode),
                 AND => self.and(op.addressing_mode),
+                ASL => self.asl(op.addressing_mode),
                 BRK => return,
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
@@ -222,6 +229,23 @@ impl CPU {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
         self.set_register_a(self.register_a & mem_value)
+    }
+
+    fn asl(&mut self, mode: AddressingMode) {
+        if mode == AddressingMode::Implied {
+            let left_shifted_value = self.register_a << 1;
+            
+            self.set_carry_flag(self.register_a & 0x80 != 0);
+            self.set_register_a(left_shifted_value);
+        } else {
+            let addr = self.get_op_target_addr(mode);
+            let mem_value = self.memory.read(addr);
+
+            let left_shifted_value = mem_value << 1;
+
+            self.set_carry_flag(mem_value & 0x80 != 0);
+            self.memory.write(addr, left_shifted_value);
+        }
     }
 
     fn lda(&mut self, mode: AddressingMode) {

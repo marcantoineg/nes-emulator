@@ -2,7 +2,7 @@ use std::vec;
 use nes_emulator::cpu::{CPU, Flags};
 
 mod common;
-use common::{assert_flags, assert_no_flags};
+use common::*;
 
 #[test]
 fn test_0xa9_lda_immediate_load_data() {
@@ -18,14 +18,14 @@ fn test_0xa9_lda_immediate_load_data() {
 fn test_0xa9_lda_immediate_zero_flag() {
     let mut cpu = CPU::new();
     cpu.load_and_run_without_reset(vec![0xa9, 0x00, 0x00]);
-    assert_flags(&cpu, vec![Flags::Zero]);
+    assert_flag(&cpu, Flags::Zero);
 }
 
 #[test]
 fn test_0xa9_lda_immediate_negative_flag() {
     let mut cpu = CPU::new();
     cpu.load_and_run_without_reset(vec![0xA9, 0b1000_0000, 0x00]);
-    assert_flags(&cpu, vec![Flags::Negative]);
+    assert_flag(&cpu, Flags::Negative);
 }
 
 #[test]
@@ -46,7 +46,7 @@ fn test_0xa5_lda_zero_page_zero_flag() {
     cpu.load_and_run_without_reset(vec![0xA5, 0x05, 0x00]);
 
     assert_eq!(cpu.register_a, 0);
-    assert_flags(&cpu, vec![Flags::Zero]);
+    assert_flag(&cpu, Flags::Zero);
 }
 
 #[test]
@@ -57,7 +57,7 @@ fn test_0xa5_lda_zero_page_negative_flag() {
     cpu.load_and_run_without_reset(vec![0xA5, 0x05, 0x00]);
 
     assert_eq!(cpu.register_a, 0b1000_0000);
-    assert_flags(&cpu, vec![Flags::Negative]);
+    assert_flag(&cpu, Flags::Negative);
 }
 
 #[test]
@@ -81,7 +81,7 @@ fn test_0xb5_lda_zero_page_x_zero_flag() {
     cpu.load_and_run_without_reset(vec![0xB5, 0x01, 0x00]);
 
     assert_eq!(cpu.register_a, 0);
-    assert_flags(&cpu, vec![Flags::Zero]);
+    assert_flag(&cpu, Flags::Zero);
 }
 
 #[test]
@@ -93,7 +93,7 @@ fn test_0xb5_lda_zero_page_x_negative_flag() {
     cpu.load_and_run_without_reset(vec![0xB5, 0x01, 0x00]);
 
     assert_eq!(cpu.register_a, 0b1000_0000);
-    assert_flags(&cpu, vec![Flags::Negative]);
+    assert_flag(&cpu, Flags::Negative);
 }
 
 #[test]
@@ -115,7 +115,7 @@ fn test_0xad_lda_absolute_zero_flag() {
     cpu.load_and_run_without_reset(vec![0xAD, 0x10, 0x11, 0x00]);
 
     assert_eq!(cpu.register_a, 0);
-    assert_flags(&cpu, vec![Flags::Zero]);
+    assert_flag(&cpu, Flags::Zero);
 }
 
 #[test]
@@ -126,7 +126,7 @@ fn test_0xad_lda_absolute_negative_flag() {
     cpu.load_and_run_without_reset(vec![0xAD, 0x10, 0x11, 0x00]);
 
     assert_eq!(cpu.register_a, 0b1000_0000);
-    assert_flags(&cpu, vec![Flags::Negative]);
+    assert_flag(&cpu, Flags::Negative);
 }
 
 #[test]
@@ -150,7 +150,7 @@ fn test_0xbd_lda_absolute_x_zero_flag() {
     cpu.load_and_run_without_reset(vec![0xBD, 0x10, 0x11, 0x00]);
 
     assert_eq!(cpu.register_a, 0);
-    assert_flags(&cpu, vec![Flags::Zero]);
+    assert_flag(&cpu, Flags::Zero);
 }
 
 #[test]
@@ -162,7 +162,7 @@ fn test_0xbd_lda_absolute_x_negative_flag() {
     cpu.load_and_run_without_reset(vec![0xBD, 0x10, 0x11, 0x00]);
 
     assert_eq!(cpu.register_a, 0b1000_0000);
-    assert_flags(&cpu, vec![Flags::Negative]);
+    assert_flag(&cpu, Flags::Negative);
 }
 
 #[test]
@@ -186,7 +186,7 @@ fn test_0xb9_lda_absolute_y_zero_flag() {
     cpu.load_and_run_without_reset(vec![0xB9, 0x10, 0x11, 0x00]);
 
     assert_eq!(cpu.register_a, 0);
-    assert_flags(&cpu, vec![Flags::Zero]);
+    assert_flag(&cpu, Flags::Zero);
 }
 
 #[test]
@@ -198,7 +198,7 @@ fn test_0xb9_lda_absolute_y_negative_flag() {
     cpu.load_and_run_without_reset(vec![0xB9, 0x10, 0x11, 0x00]);
 
     assert_eq!(cpu.register_a, 0b1000_0000);
-    assert_flags(&cpu, vec![Flags::Negative]);
+    assert_flag(&cpu, Flags::Negative);
 }
 
 #[test]
@@ -224,7 +224,7 @@ fn test_0xa1_lda_indirect_x_zero_flag() {
     cpu.load_and_run_without_reset(vec![0xA1, 0x01, 0x00]);
 
     assert_eq!(cpu.register_a, 0);
-    assert_flags(&cpu, vec![Flags::Zero]);
+    assert_flag(&cpu, Flags::Zero);
 }
 
 #[test]
@@ -237,5 +237,5 @@ fn test_0xa1_lda_indirect_x_negative_flag() {
     cpu.load_and_run_without_reset(vec![0xA1, 0x01, 0x00]);
 
     assert_eq!(cpu.register_a, 0b1000_0000);
-    assert_flags(&cpu, vec![Flags::Negative]);
+    assert_flag(&cpu, Flags::Negative);
 }

@@ -16,7 +16,7 @@ pub enum OpName {
     TAX,TAY,TSX,TXA,TXS,TYA,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum AddressingMode {
     Immediate,
     ZeroPage,

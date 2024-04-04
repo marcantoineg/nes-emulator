@@ -3,7 +3,7 @@ use std::vec;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flags, assert_no_flags};
+use common::*;
 
 mod tax {
     use super::*;
@@ -29,7 +29,7 @@ mod tax {
 
         assert_eq!(cpu.register_a, 0x00);
         assert_eq!(cpu.register_x, 0x00);
-        assert_flags(&cpu, vec![Flags::Zero]);
+        assert_flag(&cpu, Flags::Zero);
     }
 
     #[test]
@@ -41,7 +41,7 @@ mod tax {
 
         assert_eq!(cpu.register_a, 0b1000_0000);
         assert_eq!(cpu.register_x, 0b1000_0000);
-        assert_flags(&cpu, vec![Flags::Negative]);
+        assert_flag(&cpu, Flags::Negative);
     }
 }
 
@@ -69,7 +69,7 @@ mod tay {
 
         assert_eq!(cpu.register_a, 0x00);
         assert_eq!(cpu.register_y, 0x00);
-        assert_flags(&cpu, vec![Flags::Zero]);
+        assert_flag(&cpu, Flags::Zero);
     }
 
     #[test]
@@ -81,7 +81,7 @@ mod tay {
 
         assert_eq!(cpu.register_a, 0b1000_0000);
         assert_eq!(cpu.register_y, 0b1000_0000);
-        assert_flags(&cpu, vec![Flags::Negative]);
+        assert_flag(&cpu, Flags::Negative);
     }
 }
 
@@ -118,7 +118,7 @@ mod inx {
         cpu.load_and_run_without_reset(vec![0xE8, 0x00]);
 
         assert_eq!(cpu.register_x, 0x00);
-        assert_flags(&cpu, vec![Flags::Zero]);
+        assert_flag(&cpu, Flags::Zero);
     }
 
     #[test]
@@ -129,7 +129,7 @@ mod inx {
         cpu.load_and_run_without_reset(vec![0xE8, 0x00]);
 
         assert_eq!(cpu.register_x, 0b1000_0000);
-        assert_flags(&cpu, vec![Flags::Negative]);
+        assert_flag(&cpu, Flags::Negative);
     }
 }
 
