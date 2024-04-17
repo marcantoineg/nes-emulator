@@ -69,6 +69,8 @@ impl CPU {
             (0x0E, Operation::new(ASL, Absolute, 3)),
             (0x1E, Operation::new(ASL, AbsoluteX, 3)),
 
+            (0x90, Operation::new(BCC, Immediate, 2)),
+
             (0x00, Operation::new(BRK, Implied, 1)),
             
             (0xA9, Operation::new(LDA, Immediate, 2)),
@@ -194,6 +196,7 @@ impl CPU {
                 ADC => self.adc(op.addressing_mode),
                 AND => self.and(op.addressing_mode),
                 ASL => self.asl(op.addressing_mode),
+                BCC => self.bcc(op.addressing_mode),
                 BRK => return,
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
@@ -245,6 +248,26 @@ impl CPU {
 
             self.set_carry_flag(mem_value & 0x80 != 0);
             self.memory.write(addr, left_shifted_value);
+        }
+    }
+
+    fn bcc(&mut self, mode: AddressingMode) {
+        if self.carry_flag() {
+            return;
+        }
+
+        let addr = self.get_op_target_addr(mode);
+        let mem_value = self.memory.read(addr);
+        self.branch(mem_value);
+    }
+
+    fn branch(&mut self, offset: u8) {
+        if offset == 0 { return; }
+        let usigned_offset = (offset & 0b0111_1111) as u16;
+        if offset & 0b1000_0000 != 0 {
+            self.program_counter -= usigned_offset;
+        } else {
+            self.program_counter += usigned_offset;
         }
     }
 
