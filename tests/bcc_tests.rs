@@ -2,7 +2,7 @@ use std::vec;
 use nes_emulator::cpu::{CPU, Flags};
 
 mod common;
-use common::{assert_no_flags, assert_flags};
+use common::*;
 
 #[test]
 fn test_0x90_bcc_immediate_branches_forward_correctly() {
