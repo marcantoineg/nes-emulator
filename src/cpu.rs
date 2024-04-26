@@ -73,6 +73,9 @@ impl CPU {
             (0xB0, Operation::new(BCS, Relative, 2)),
             (0xF0, Operation::new(BEQ, Relative, 2)),
 
+            (0x24, Operation::new(BIT, ZeroPage, 2)),
+            (0x2C, Operation::new(BIT, Absolute, 3)),
+
             (0x00, Operation::new(BRK, Implied, 1)),
             
             (0xA9, Operation::new(LDA, Immediate, 2)),
@@ -202,6 +205,7 @@ impl CPU {
                 BCC => self.bcc(),
                 BCS => self.bcs(),
                 BEQ => self.beq(),
+                BIT => self.bit(op.addressing_mode),
                 BRK => return,
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
@@ -286,6 +290,15 @@ impl CPU {
         } else {
             self.program_counter += usigned_offset;
         }
+    }
+
+    fn bit(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        let mem_value = self.memory.read(addr);
+
+        self.set_zero_flag(self.register_a & mem_value);
+        self.set_negative_flag(mem_value & Flags::Negative.bits());
+        self.set_overflow_flag(mem_value & Flags::Overflow.bits() != 0);
     }
 
     fn lda(&mut self, mode: AddressingMode) {
