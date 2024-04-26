@@ -13,9 +13,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - uses: taiki-e/install-action@cargo-llvm-cov
       
       - name: build
         run: cargo build --verbose
 
-      - name: tests
-        run: cargo test
+      - name: tests with coverage
+        run: cargo llvm-cov
