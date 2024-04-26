@@ -19,6 +19,7 @@ pub enum OpName {
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum AddressingMode {
     Immediate,
+    Relative,
     ZeroPage,
     ZeroPageX,
     ZeroPageY,

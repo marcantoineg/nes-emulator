@@ -30,7 +30,7 @@ fn test_0xb0_bcs_immediate_branches_backward_correctly() {
         0x00
     ]);
 
-    assert_eq!(cpu.register_a, 0x02); // 0x02 here because of adc+1 and carry (so +2)
+    assert_eq!(cpu.register_a, 0x02); // 0x02 here because of adc+1 with carry (so +2)
     assert_no_flags(&cpu);
 }
 

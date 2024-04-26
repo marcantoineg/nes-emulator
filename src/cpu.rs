@@ -69,8 +69,9 @@ impl CPU {
             (0x0E, Operation::new(ASL, Absolute, 3)),
             (0x1E, Operation::new(ASL, AbsoluteX, 3)),
 
-            (0x90, Operation::new(BCC, Immediate, 2)),
-            (0xB0, Operation::new(BCS, Immediate, 2)),
+            (0x90, Operation::new(BCC, Relative, 2)),
+            (0xB0, Operation::new(BCS, Relative, 2)),
+            (0xF0, Operation::new(BEQ, Relative, 2)),
 
             (0x00, Operation::new(BRK, Implied, 1)),
             
@@ -144,7 +145,7 @@ impl CPU {
     fn get_op_target_addr(&mut self, mode: AddressingMode) -> u16 {
         use AddressingMode::*;
         match mode {
-            Immediate => {
+            Immediate | Relative => {
                 return self.program_counter;
             }
             ZeroPage => {
@@ -200,6 +201,7 @@ impl CPU {
                 ASL => self.asl(op.addressing_mode),
                 BCC => self.bcc(),
                 BCS => self.bcs(),
+                BEQ => self.beq(),
                 BRK => return,
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
@@ -261,6 +263,11 @@ impl CPU {
 
     fn bcs(&mut self) {
         let condition = self.carry_flag();
+        self.branch(condition);
+    }
+
+    fn beq(&mut self) {
+        let condition = self.zero_flag();
         self.branch(condition);
     }
 
@@ -328,6 +335,10 @@ impl CPU {
         self.register_y = value;
         self.set_zero_flag(self.register_y);
         self.set_negative_flag(self.register_y)
+    }
+
+    fn zero_flag(&mut self) -> bool {
+        return self.status.contains(Flags::Zero);
     }
 
     fn set_zero_flag(&mut self, value: u8) {
