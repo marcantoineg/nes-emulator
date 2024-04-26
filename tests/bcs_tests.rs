@@ -5,7 +5,7 @@ mod common;
 use common::{assert_flag, assert_no_flags, assert_flags};
 
 #[test]
-fn test_0xb0_bcs_immediate_branches_forward_correctly() {
+fn test_0xb0_bcs_relative_branches_forward_correctly() {
     let mut cpu = CPU::new();
     cpu.status.insert(Flags::Carry);
     
@@ -20,7 +20,7 @@ fn test_0xb0_bcs_immediate_branches_forward_correctly() {
 }
 
 #[test]
-fn test_0xb0_bcs_immediate_branches_backward_correctly() {
+fn test_0xb0_bcs_relative_branches_backward_correctly() {
     let mut cpu = CPU::new();
     
     cpu.load_and_run_without_reset(vec![
@@ -35,7 +35,7 @@ fn test_0xb0_bcs_immediate_branches_backward_correctly() {
 }
 
 #[test]
-fn test_0xb0_bcs_immediate_ignores_branching_when_offset_is_zero() {
+fn test_0xb0_bcs_relative_ignores_branching_when_offset_is_zero() {
     let mut cpu = CPU::new();
 
     cpu.load_and_run_without_reset(vec![
@@ -50,7 +50,7 @@ fn test_0xb0_bcs_immediate_ignores_branching_when_offset_is_zero() {
 }
 
 #[test]
-fn test_0xb0_bcs_immediate_ignores_branching_when_condition_is_not_met() {
+fn test_0xb0_bcs_relative_ignores_branching_when_condition_is_not_met() {
     let mut cpu = CPU::new();
 
     cpu.load_and_run_without_reset(vec![

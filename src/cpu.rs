@@ -72,6 +72,7 @@ impl CPU {
             (0x90, Operation::new(BCC, Relative, 2)),
             (0xB0, Operation::new(BCS, Relative, 2)),
             (0xF0, Operation::new(BEQ, Relative, 2)),
+            (0x30, Operation::new(BMI, Relative, 2)),
 
             (0x24, Operation::new(BIT, ZeroPage, 2)),
             (0x2C, Operation::new(BIT, Absolute, 3)),
@@ -205,6 +206,7 @@ impl CPU {
                 BCC => self.bcc(),
                 BCS => self.bcs(),
                 BEQ => self.beq(),
+                BMI => self.bmi(),
                 BIT => self.bit(op.addressing_mode),
                 BRK => return,
                 LDA => self.lda(op.addressing_mode),
@@ -272,6 +274,11 @@ impl CPU {
 
     fn beq(&mut self) {
         let condition = self.zero_flag();
+        self.branch(condition);
+    }
+
+    fn bmi(&mut self) {
+        let condition = self.negative_flag();
         self.branch(condition);
     }
 
@@ -360,6 +367,10 @@ impl CPU {
         } else {
             self.status.remove(Flags::Zero);
         }
+    }
+
+    fn negative_flag(&mut self) -> bool {
+        return self.status.contains(Flags::Negative);
     }
 
     fn set_negative_flag(&mut self, value: u8) {
