@@ -5,6 +5,7 @@ pub fn assert_no_flags(cpu: &CPU) {
     assert_flags(cpu, vec![]);
 }
 
+#[allow(dead_code)]
 pub fn assert_flag(cpu: &CPU, enabled_flag: Flags) {
     assert_flags(cpu, vec![enabled_flag]);
 }
@@ -34,4 +35,14 @@ fn get_flag_name(f: Flags) -> &'static str {
         Flags::Negative => "Negative",
         _ => "Unhandled Flag"
     }
+}
+
+#[allow(dead_code)]
+pub fn print_memory_dump(cpu: CPU) {
+    print!("\nmemory hex dump:\n");
+    let hex_dump = cpu.memory.dump();
+    for hex in hex_dump {
+        print!("{:0>2X} ", hex);
+    }
+    print!("\n\n");
 }

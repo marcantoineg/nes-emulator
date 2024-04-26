@@ -3,7 +3,7 @@ use std::vec;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::*;
+use common::{assert_flag, assert_no_flags};
 
 #[test]
 fn test_0xaa_tax_implied_copy_data() {

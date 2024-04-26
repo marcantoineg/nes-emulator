@@ -1,12 +1,20 @@
 pub struct Memory {
-    memory: [u8; 0xFFFF]
+    memory: [u8; 0xFFFF],
+    debug: bool,
+    hex_dump: Vec<u8>
 }
 
 impl Memory {
     pub fn new() -> Self {
         Memory {
-            memory: [0; 0xFFFF]
+            memory: [0; 0xFFFF],
+            debug: false,
+            hex_dump: vec![]
         } 
+    }
+
+    pub fn set_debug(&mut self) {
+        self.debug = true;
     }
 
     pub fn load_program(&mut self, data: Vec<u8>) {
@@ -33,7 +41,15 @@ impl Memory {
     }
 
     pub fn read(&mut self, addr: u16) -> u8 {
-        return self.memory[addr as usize];
+        let value = self.memory[addr as usize];
+        if self.debug {
+            self.hex_dump.push(value)
+        }
+        return value;
+    }
+
+    pub fn dump(&self) -> &Vec<u8> {
+        return &self.hex_dump;
     }
 }
 

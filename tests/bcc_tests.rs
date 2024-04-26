@@ -2,7 +2,7 @@ use std::vec;
 use nes_emulator::cpu::{CPU, Flags};
 
 mod common;
-use common::*;
+use common::{assert_no_flags, assert_flags};
 
 #[test]
 fn test_0x90_bcc_immediate_branches_forward_correctly() {
@@ -19,14 +19,13 @@ fn test_0x90_bcc_immediate_branches_forward_correctly() {
 }
 
 #[test]
-fn test_0x90_bcc_immediate_ignore_branching_correctly() {
+fn test_0x90_bcc_immediate_branches_backward_correctly() {
     let mut cpu = CPU::new();
-    cpu.status.insert(Flags::Carry);
     
     cpu.load_and_run_without_reset(vec![
         /*LDA*/ 0xA9, 0xFE,
         /*ADC*/ 0x69, 0x01,
-        /*BCC-1*/ 0x90, 0x81,
+        /*BCC-4*/ 0x90, 0x84,
         0x00
     ]);
 
@@ -35,7 +34,7 @@ fn test_0x90_bcc_immediate_ignore_branching_correctly() {
 }
 
 #[test]
-fn test_0x90_bcc_immediate_ignore_branching_when_offset_is_zero() {
+fn test_0x90_bcc_immediate_ignores_branching_when_offset_is_zero() {
     let mut cpu = CPU::new();
 
     cpu.load_and_run_without_reset(vec![
@@ -47,4 +46,18 @@ fn test_0x90_bcc_immediate_ignore_branching_when_offset_is_zero() {
 
     assert_eq!(cpu.register_a, 0x02);
     assert_no_flags(&cpu);
+}
+
+#[test]
+fn test_0x90_bcc_immediate_ignores_branching_when_condition_is_not_met() {
+    let mut cpu = CPU::new();
+
+    cpu.load_and_run_without_reset(vec![
+        /*LDA*/ 0xA9, 0xFF,
+        /*ADC*/ 0x69, 0x01,
+        /*BCC-4*/ 0x90, 0x84,
+    ]);
+
+    assert_eq!(cpu.register_a, 0x00);
+    assert_flags(&cpu, vec![Flags::Zero, Flags::Carry]);
 }

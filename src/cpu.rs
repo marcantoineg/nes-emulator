@@ -70,6 +70,7 @@ impl CPU {
             (0x1E, Operation::new(ASL, AbsoluteX, 3)),
 
             (0x90, Operation::new(BCC, Immediate, 2)),
+            (0xB0, Operation::new(BCS, Immediate, 2)),
 
             (0x00, Operation::new(BRK, Implied, 1)),
             
@@ -120,6 +121,7 @@ impl CPU {
     pub fn load_and_run_without_reset(&mut self, program: Vec<u8>) {
         self.load(program);
         self.reset(false);
+        self.memory.set_debug();
         self.run();
     }
 
@@ -196,7 +198,8 @@ impl CPU {
                 ADC => self.adc(op.addressing_mode),
                 AND => self.and(op.addressing_mode),
                 ASL => self.asl(op.addressing_mode),
-                BCC => self.bcc(op.addressing_mode),
+                BCC => self.bcc(),
+                BCS => self.bcs(),
                 BRK => return,
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
@@ -222,7 +225,7 @@ impl CPU {
 
         let carry_out = wrapped_sum < self.register_a;
         let overflow = ((self.register_a ^ wrapped_sum) & (mem_value ^ wrapped_sum) & 0x80) != 0;
-        
+
         self.set_carry_flag(carry_out);
         self.set_overflow_flag(overflow);
         self.set_register_a(wrapped_sum);
@@ -251,18 +254,25 @@ impl CPU {
         }
     }
 
-    fn bcc(&mut self, mode: AddressingMode) {
-        if self.carry_flag() {
+    fn bcc(&mut self) {
+        let condition = !self.carry_flag();
+        self.branch(condition);
+    }
+
+    fn bcs(&mut self) {
+        let condition = self.carry_flag();
+        self.branch(condition);
+    }
+
+    fn branch(&mut self, branching_condition: bool) {
+        if !branching_condition {
             return;
         }
 
-        let addr = self.get_op_target_addr(mode);
-        let mem_value = self.memory.read(addr);
-        self.branch(mem_value);
-    }
-
-    fn branch(&mut self, offset: u8) {
+        let addr = self.get_op_target_addr(AddressingMode::Immediate);
+        let offset = self.memory.read(addr);
         if offset == 0 { return; }
+
         let usigned_offset = (offset & 0b0111_1111) as u16;
         if offset & 0b1000_0000 != 0 {
             self.program_counter -= usigned_offset;

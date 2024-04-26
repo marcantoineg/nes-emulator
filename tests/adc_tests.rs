@@ -2,7 +2,7 @@ use std::vec;
 use nes_emulator::cpu::{CPU, Flags};
 
 mod common;
-use common::*;
+use common::{assert_flag, assert_no_flags, assert_flags};
 
 #[test]
 fn test_0x69_adc_immediate_adds_correctly() {

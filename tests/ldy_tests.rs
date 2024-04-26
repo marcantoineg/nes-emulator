@@ -2,7 +2,7 @@ use std::vec;
 use nes_emulator::cpu::{CPU, Flags};
 
 mod common;
-use common::*;
+use common::{assert_flag, assert_no_flags};
 
 #[test]
 fn test_0xa0_ldy_immediate_load_data() {
