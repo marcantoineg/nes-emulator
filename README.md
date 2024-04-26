@@ -1,4 +1,6 @@
 # nes-emulator (wip) 🎮
+[![codecov](https://codecov.io/gh/marcantoineg/nes-emulator/graph/badge.svg?token=PA73YKCDNA)](https://codecov.io/gh/marcantoineg/nes-emulator)
+
 A (somewhat) simple emulator of the [Nintendo Entertainment System](https://en.wikipedia.org/wiki/Nintendo_Entertainment_System) in [Rust](https://www.rust-lang.org/)
 
 - [NES emulator tutorial](https://bugzmanov.github.io/nes_ebook/)
