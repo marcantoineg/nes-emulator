@@ -75,6 +75,7 @@ impl CPU {
             (0x30, Operation::new(BMI, Relative, 2)),
             (0xD0, Operation::new(BNE, Relative, 2)),
             (0x10, Operation::new(BPL, Relative, 2)),
+            (0x50, Operation::new(BVC, Relative, 2)),
 
             (0x24, Operation::new(BIT, ZeroPage, 2)),
             (0x2C, Operation::new(BIT, Absolute, 3)),
@@ -211,6 +212,7 @@ impl CPU {
                 BMI => self.bmi(),
                 BNE => self.bne(),
                 BPL => self.bpl(),
+                BVC => self.bvc(),
                 BIT => self.bit(op.addressing_mode),
                 BRK => return,
                 LDA => self.lda(op.addressing_mode),
@@ -293,6 +295,11 @@ impl CPU {
     
     fn bpl(&mut self) {
         let condition = !self.negative_flag();
+        self.branch(condition);
+    }
+
+    fn bvc(&mut self) {
+        let condition = !self.overflow_flag();
         self.branch(condition);
     }
 
@@ -405,6 +412,10 @@ impl CPU {
         } else {
             self.status.remove(Flags::Carry);
         }
+    }
+
+    fn overflow_flag(&mut self) -> bool {
+        return self.status.contains(Flags::Overflow);
     }
 
     fn set_overflow_flag(&mut self, value: bool) {
