@@ -18,7 +18,7 @@ jobs:
           filters: |
             rust:
               - .github/workflows/ci.yml
-              - **/*.rs
+              - ./**/*.rs
               - Cargo.toml
               - Cargo.lock
 
