@@ -76,6 +76,7 @@ impl CPU {
             (0xD0, Operation::new(BNE, Relative, 2)),
             (0x10, Operation::new(BPL, Relative, 2)),
             (0x50, Operation::new(BVC, Relative, 2)),
+            (0x70, Operation::new(BVS, Relative, 2)),
 
             (0x24, Operation::new(BIT, ZeroPage, 2)),
             (0x2C, Operation::new(BIT, Absolute, 3)),
@@ -213,6 +214,7 @@ impl CPU {
                 BNE => self.bne(),
                 BPL => self.bpl(),
                 BVC => self.bvc(),
+                BVS => self.bvs(),
                 BIT => self.bit(op.addressing_mode),
                 BRK => return,
                 LDA => self.lda(op.addressing_mode),
@@ -300,6 +302,11 @@ impl CPU {
 
     fn bvc(&mut self) {
         let condition = !self.overflow_flag();
+        self.branch(condition);
+    }
+
+    fn bvs(&mut self) {
+        let condition = self.overflow_flag();
         self.branch(condition);
     }
 

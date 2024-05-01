@@ -40,7 +40,7 @@ fn get_flag_name(f: Flags) -> &'static str {
 }
 
 #[allow(dead_code)]
-pub fn print_memory_dump(cpu: CPU) {
+pub fn print_memory_dump(cpu: &CPU) {
     print!("\nmemory hex dump:\n");
     let hex_dump = cpu.memory.dump();
     for hex in hex_dump {
