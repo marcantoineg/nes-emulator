@@ -74,6 +74,7 @@ impl CPU {
             (0xF0, Operation::new(BEQ, Relative, 2)),
             (0x30, Operation::new(BMI, Relative, 2)),
             (0xD0, Operation::new(BNE, Relative, 2)),
+            (0x10, Operation::new(BPL, Relative, 2)),
 
             (0x24, Operation::new(BIT, ZeroPage, 2)),
             (0x2C, Operation::new(BIT, Absolute, 3)),
@@ -209,6 +210,7 @@ impl CPU {
                 BEQ => self.beq(),
                 BMI => self.bmi(),
                 BNE => self.bne(),
+                BPL => self.bpl(),
                 BIT => self.bit(op.addressing_mode),
                 BRK => return,
                 LDA => self.lda(op.addressing_mode),
@@ -286,6 +288,11 @@ impl CPU {
 
     fn bne(&mut self) {
         let condition = !self.zero_flag();
+        self.branch(condition);
+    }
+    
+    fn bpl(&mut self) {
+        let condition = !self.negative_flag();
         self.branch(condition);
     }
 
