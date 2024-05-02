@@ -89,4 +89,22 @@ mod tests {
 
         assert_eq!(mem.memory[0x8000..0x8005], program);
     }
+
+    #[test]
+    fn test_hex_dump_debug_on() {
+        let mut mem = Memory::new();
+        mem.set_debug();
+        mem.load_program(vec![0x01, 0x02]);
+        mem.read(0x8000);
+
+        assert_eq!(mem.dump(), &vec![0x01]);
+    }
+
+    #[test]
+    fn test_hex_dump_debug_off() {
+        let mut mem = Memory::new();
+        mem.load_program(vec![0x01, 0x02]);
+        mem.read(0x8000);
+        assert_eq!(mem.dump(), &vec![]);
+    }
 }
