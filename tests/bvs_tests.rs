@@ -4,8 +4,6 @@ use nes_emulator::cpu::{CPU, Flags};
 mod common;
 use common::{assert_no_flags, assert_flags, assert_flag};
 
-use crate::common::print_memory_dump;
-
 #[test]
 fn test_0x70_bvs_relative_branches_forward_correctly() {
     let mut cpu = CPU::new();

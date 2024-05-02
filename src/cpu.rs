@@ -82,6 +82,11 @@ impl CPU {
             (0x2C, Operation::new(BIT, Absolute, 3)),
 
             (0x00, Operation::new(BRK, Implied, 1)),
+
+            (0x18, Operation::new(CLC, Implied, 1)),
+            (0xD8, Operation::new(CLD, Implied, 1)),
+            (0x58, Operation::new(CLI, Implied, 1)),
+            (0xB8, Operation::new(CLV, Implied, 1)),
             
             (0xA9, Operation::new(LDA, Immediate, 2)),
             (0xA5, Operation::new(LDA, ZeroPage, 2)),
@@ -217,6 +222,10 @@ impl CPU {
                 BVS => self.bvs(),
                 BIT => self.bit(op.addressing_mode),
                 BRK => return,
+                CLC => self.set_carry_flag(false),
+                CLD => self.set_decimal_flag(false),
+                CLI => self.set_interupt_flag(false),
+                CLV => self.set_overflow_flag(false),
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
@@ -430,6 +439,22 @@ impl CPU {
             self.status.insert(Flags::Overflow);
         } else {
             self.status.remove(Flags::Overflow);
+        }
+    }
+
+    fn set_interupt_flag(&mut self, value: bool) {
+        if value {
+            self.status.insert(Flags::InteruptDisable);
+        } else {
+            self.status.remove(Flags::InteruptDisable);
+        }
+    }
+
+    fn set_decimal_flag(&mut self, value: bool) {
+        if value {
+            self.status.insert(Flags::Decimal);
+        } else {
+            self.status.remove(Flags::Decimal);
         }
     }
 }
