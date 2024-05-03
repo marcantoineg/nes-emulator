@@ -87,6 +87,15 @@ impl CPU {
             (0xD8, Operation::new(CLD, Implied, 1)),
             (0x58, Operation::new(CLI, Implied, 1)),
             (0xB8, Operation::new(CLV, Implied, 1)),
+
+            (0xC9, Operation::new(CMP, Immediate, 2)),
+            (0xC5, Operation::new(CMP, ZeroPage, 2)),
+            (0xD5, Operation::new(CMP, ZeroPageX, 2)),
+            (0xCD, Operation::new(CMP, Absolute, 3)),
+            (0xDD, Operation::new(CMP, AbsoluteX, 3)),
+            (0xD9, Operation::new(CMP, AbsoluteY, 3)),
+            (0xC1, Operation::new(CMP, IndirectX, 2)),
+            (0xD1, Operation::new(CMP, IndirectY, 2)),
             
             (0xA9, Operation::new(LDA, Immediate, 2)),
             (0xA5, Operation::new(LDA, ZeroPage, 2)),
@@ -226,6 +235,7 @@ impl CPU {
                 CLD => self.set_decimal_flag(false),
                 CLI => self.set_interupt_flag(false),
                 CLV => self.set_overflow_flag(false),
+                CMP => self.cmp(op.addressing_mode),
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
@@ -343,6 +353,16 @@ impl CPU {
         self.set_zero_flag(self.register_a & mem_value);
         self.set_negative_flag(mem_value & Flags::Negative.bits());
         self.set_overflow_flag(mem_value & Flags::Overflow.bits() != 0);
+    }
+
+    fn cmp(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        let mem_value = self.memory.read(addr);
+
+        let result = self.register_a.wrapping_sub(mem_value);
+        self.set_carry_flag(self.register_a >= mem_value);
+        self.set_zero_flag(result);
+        self.set_negative_flag(result);
     }
 
     fn lda(&mut self, mode: AddressingMode) {
