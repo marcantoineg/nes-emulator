@@ -96,7 +96,15 @@ impl CPU {
             (0xD9, Operation::new(CMP, AbsoluteY, 3)),
             (0xC1, Operation::new(CMP, IndirectX, 2)),
             (0xD1, Operation::new(CMP, IndirectY, 2)),
-            
+
+            (0xE0, Operation::new(CPX, Immediate, 2)),
+            (0xE4, Operation::new(CPX, ZeroPage, 2)),
+            (0xEC, Operation::new(CPX, Absolute, 3)),
+
+            (0xC0, Operation::new(CPY, Immediate, 2)),
+            (0xC4, Operation::new(CPY, ZeroPage, 2)),
+            (0xCC, Operation::new(CPY, Absolute, 3)),
+
             (0xA9, Operation::new(LDA, Immediate, 2)),
             (0xA5, Operation::new(LDA, ZeroPage, 2)),
             (0xB5, Operation::new(LDA, ZeroPageX, 2)),
@@ -236,6 +244,8 @@ impl CPU {
                 CLI => self.set_interupt_flag(false),
                 CLV => self.set_overflow_flag(false),
                 CMP => self.cmp(op.addressing_mode),
+                CPX => self.cpx(op.addressing_mode),
+                CPY => self.cpy(op.addressing_mode),
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
@@ -356,11 +366,23 @@ impl CPU {
     }
 
     fn cmp(&mut self, mode: AddressingMode) {
+        self.compare(mode, self.register_a);
+    }
+
+    fn cpx(&mut self, mode: AddressingMode) {
+        self.compare(mode, self.register_x);
+    }
+
+    fn cpy(&mut self, mode: AddressingMode) {
+        self.compare(mode, self.register_y);
+    }
+
+    fn compare(&mut self, mode: AddressingMode, register_value: u8) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
 
-        let result = self.register_a.wrapping_sub(mem_value);
-        self.set_carry_flag(self.register_a >= mem_value);
+        let result = register_value.wrapping_sub(mem_value);
+        self.set_carry_flag(register_value >= mem_value);
         self.set_zero_flag(result);
         self.set_negative_flag(result);
     }
