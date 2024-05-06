@@ -112,6 +112,8 @@ impl CPU {
 
             (0xCA, Operation::new(DEX, Implied, 1)),
 
+            (0x88, Operation::new(DEY, Implied, 1)),
+
             (0xA9, Operation::new(LDA, Immediate, 2)),
             (0xA5, Operation::new(LDA, ZeroPage, 2)),
             (0xB5, Operation::new(LDA, ZeroPageX, 2)),
@@ -255,6 +257,7 @@ impl CPU {
                 CPY => self.cpy(op.addressing_mode),
                 DEC => self.dec(op.addressing_mode),
                 DEX => self.dex(),
+                DEY => self.dey(),
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
@@ -409,6 +412,11 @@ impl CPU {
     fn dex(&mut self) {
         let result = self.register_x.wrapping_sub(1);
         self.set_register_x(result);
+    }
+
+    fn dey(&mut self) {
+        let result = self.register_y.wrapping_sub(1);
+        self.set_register_y(result);
     }
 
     fn lda(&mut self, mode: AddressingMode) {
