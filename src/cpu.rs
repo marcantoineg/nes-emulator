@@ -105,6 +105,11 @@ impl CPU {
             (0xC4, Operation::new(CPY, ZeroPage, 2)),
             (0xCC, Operation::new(CPY, Absolute, 3)),
 
+            (0xC6, Operation::new(DEC, ZeroPage, 2)),
+            (0xD6, Operation::new(DEC, ZeroPageX, 2)),
+            (0xCE, Operation::new(DEC, Absolute, 3)),
+            (0xDE, Operation::new(DEC, AbsoluteX, 3)),
+
             (0xA9, Operation::new(LDA, Immediate, 2)),
             (0xA5, Operation::new(LDA, ZeroPage, 2)),
             (0xB5, Operation::new(LDA, ZeroPageX, 2)),
@@ -246,6 +251,7 @@ impl CPU {
                 CMP => self.cmp(op.addressing_mode),
                 CPX => self.cpx(op.addressing_mode),
                 CPY => self.cpy(op.addressing_mode),
+                DEC => self.dec(op.addressing_mode),
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
@@ -383,6 +389,16 @@ impl CPU {
 
         let result = register_value.wrapping_sub(mem_value);
         self.set_carry_flag(register_value >= mem_value);
+        self.set_zero_flag(result);
+        self.set_negative_flag(result);
+    }
+
+    fn dec(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        let mem_value = self.memory.read(addr);
+
+        let result = mem_value.wrapping_sub(1);
+        self.memory.write(addr, result);
         self.set_zero_flag(result);
         self.set_negative_flag(result);
     }
