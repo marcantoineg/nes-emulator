@@ -114,6 +114,15 @@ impl CPU {
 
             (0x88, Operation::new(DEY, Implied, 1)),
 
+            (0x49, Operation::new(EOR, Immediate, 2)),
+            (0x45, Operation::new(EOR, ZeroPage, 2)),
+            (0x55, Operation::new(EOR, ZeroPageX, 2)),
+            (0x4D, Operation::new(EOR, Absolute, 3)),
+            (0x5D, Operation::new(EOR, AbsoluteX, 3)),
+            (0x59, Operation::new(EOR, AbsoluteY, 3)),
+            (0x41, Operation::new(EOR, IndirectX, 2)),
+            (0x51, Operation::new(EOR, IndirectY, 2)),
+
             (0xA9, Operation::new(LDA, Immediate, 2)),
             (0xA5, Operation::new(LDA, ZeroPage, 2)),
             (0xB5, Operation::new(LDA, ZeroPageX, 2)),
@@ -258,6 +267,7 @@ impl CPU {
                 DEC => self.dec(op.addressing_mode),
                 DEX => self.dex(),
                 DEY => self.dey(),
+                EOR => self.eor(op.addressing_mode),
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
@@ -417,6 +427,13 @@ impl CPU {
     fn dey(&mut self) {
         let result = self.register_y.wrapping_sub(1);
         self.set_register_y(result);
+    }
+
+    fn eor(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        let mem_value = self.memory.read(addr);
+        let result = self.register_a ^ mem_value;
+        self.set_register_a(result);
     }
 
     fn lda(&mut self, mode: AddressingMode) {
