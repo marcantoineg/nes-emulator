@@ -123,6 +123,15 @@ impl CPU {
             (0x41, Operation::new(EOR, IndirectX, 2)),
             (0x51, Operation::new(EOR, IndirectY, 2)),
 
+            (0xE6, Operation::new(INC, ZeroPage, 2)),
+            (0xF6, Operation::new(INC, ZeroPageX, 2)),
+            (0xEE, Operation::new(INC, Absolute, 3)),
+            (0xFE, Operation::new(INC, AbsoluteX, 3)),
+
+            (0xE8, Operation::new(INX, Implied, 2)),
+
+            (0xC8, Operation::new(INY, Implied, 2)),
+            
             (0xA9, Operation::new(LDA, Immediate, 2)),
             (0xA5, Operation::new(LDA, ZeroPage, 2)),
             (0xB5, Operation::new(LDA, ZeroPageX, 2)),
@@ -146,8 +155,6 @@ impl CPU {
 
             (0xAA, Operation::new(TAX, Implied, 1)),
             (0xA8, Operation::new(TAY, Implied, 1)),
-            
-            (0xE8, Operation::new(INX, Implied, 2)),
         ]);
 
         CPU {
@@ -268,12 +275,14 @@ impl CPU {
                 DEX => self.dex(),
                 DEY => self.dey(),
                 EOR => self.eor(op.addressing_mode),
+                INC => self.inc(op.addressing_mode),
+                INX => self.inx(),
+                INY => self.iny(),
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
                 TAX => self.tax(),
                 TAY => self.tay(),
-                INX => self.inx(),
 
                 _ => todo!("op not implemented"),
             }
@@ -414,9 +423,7 @@ impl CPU {
         let mem_value = self.memory.read(addr);
 
         let result = mem_value.wrapping_sub(1);
-        self.memory.write(addr, result);
-        self.set_zero_flag(result);
-        self.set_negative_flag(result);
+        self.set_memory(addr, result);
     }
 
     fn dex(&mut self) {
@@ -462,9 +469,21 @@ impl CPU {
         self.set_register_y(self.register_a);
     }
 
+    fn inc(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        let mem_value = self.memory.read(addr);
+
+        self.set_memory(addr, mem_value.wrapping_add(1));
+    }
+
     fn inx(&mut self) {
         let v = self.register_x.wrapping_add(1);
         self.set_register_x(v);
+    }
+
+    fn iny(&mut self) {
+        let  v = self.register_y.wrapping_add(1);
+        self.set_register_y(v);
     }
 
     fn set_register_a(&mut self, value: u8) {
@@ -483,6 +502,12 @@ impl CPU {
         self.register_y = value;
         self.set_zero_flag(self.register_y);
         self.set_negative_flag(self.register_y)
+    }
+
+    fn set_memory(&mut self, addr: u16, value: u8) {
+        self.memory.write(addr, value);
+        self.set_zero_flag(value);
+        self.set_negative_flag(value);
     }
 
     fn zero_flag(&mut self) -> bool {
