@@ -131,6 +131,9 @@ impl CPU {
             (0xE8, Operation::new(INX, Implied, 2)),
 
             (0xC8, Operation::new(INY, Implied, 2)),
+
+            (0x4C, Operation::new(JMP, Absolute, 3)),
+            (0x6C, Operation::new(JMP, Indirect, 3)),
             
             (0xA9, Operation::new(LDA, Immediate, 2)),
             (0xA5, Operation::new(LDA, ZeroPage, 2)),
@@ -225,6 +228,9 @@ impl CPU {
                 let addr = self.memory.read_u16(self.program_counter);
                 return addr.wrapping_add(self.register_y as u16);
             }
+            Indirect => {
+                return self.memory.read_u16(self.program_counter);
+            }
             IndirectX => {
                 let zero_page_addr = self.memory.read(self.program_counter);
                 let addr = zero_page_addr.wrapping_add(self.register_x);
@@ -278,6 +284,7 @@ impl CPU {
                 INC => self.inc(op.addressing_mode),
                 INX => self.inx(),
                 INY => self.iny(),
+                JMP => self.jmp(op.addressing_mode),
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
@@ -484,6 +491,11 @@ impl CPU {
     fn iny(&mut self) {
         let  v = self.register_y.wrapping_add(1);
         self.set_register_y(v);
+    }
+
+    fn jmp(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        self.program_counter = addr;
     }
 
     fn set_register_a(&mut self, value: u8) {
