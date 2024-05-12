@@ -10,6 +10,7 @@ pub struct CPU {
     pub register_y: u8,
     pub status: Flags,
     pub program_counter: u16,
+    pub stack_pointer: u8,
     pub memory: Memory,
 
     operations_map: HashMap<u8, Operation>,
@@ -166,6 +167,7 @@ impl CPU {
             register_y: 0,
             status: Flags::Init,
             program_counter: 0,
+            stack_pointer: 0xFF,
             memory: Memory::new(),
             operations_map: operations,
         }
@@ -583,6 +585,75 @@ impl CPU {
             self.status.insert(Flags::Decimal);
         } else {
             self.status.remove(Flags::Decimal);
+        }
+    }
+
+    #[allow(dead_code)] //todo: remove when used by operations
+    fn push_stack(&mut self, value: u8) {
+        self.memory.write(self.stack_pointer_u16(), value);
+        self.stack_pointer -= 1;
+    }
+
+    #[allow(dead_code)] //todo: remove when used by operations
+    fn pop_stack(&mut self) -> u8 {
+        let stack_pointer_u16 = self.stack_pointer_u16() + 1;
+        let value = self.memory.read(stack_pointer_u16);
+        self.memory.write(stack_pointer_u16, 0x00);
+        self.stack_pointer += 1;
+        return value;
+    }
+
+    #[allow(dead_code)] //todo: remove when used by operations
+    fn stack_pointer_u16(&self) -> u16 {
+        return 0x0100 + self.stack_pointer as u16;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::CPU;
+
+    #[test]
+    fn test_stack_pushes_correctly() {
+        let mut cpu = CPU::new();
+        assert_eq!(cpu.stack_pointer, 0xFF);
+        
+        cpu.push_stack(0x55);
+        assert_eq!(cpu.memory.read(0x01FF), 0x55);
+        assert_eq!(cpu.stack_pointer, 0xFE);
+
+        cpu.push_stack(0x02);
+        assert_eq!(cpu.memory.read(0x01FE), 0x02);
+        assert_eq!(cpu.stack_pointer, 0xFD);
+    }
+
+    #[test]
+    fn test_stack_pops_correctly() {
+        let mut cpu = CPU::new();
+        assert_eq!(cpu.stack_pointer, 0xFF);
+        
+        cpu.push_stack(0x55);
+        assert_eq!(cpu.memory.read(0x01FF), 0x55);
+        assert_eq!(cpu.stack_pointer, 0xFE);
+
+        cpu.pop_stack();
+        assert_eq!(cpu.memory.read(0x01FF), 0x00);
+        assert_eq!(cpu.stack_pointer, 0xFF);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_stack_panic_when_pointer_overflows() {
+        let mut cpu = CPU::new();
+        cpu.pop_stack();
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_stack_panic_when_pointer_underflow() {
+        let mut cpu = CPU::new();
+        for n in 1..257 {
+            cpu.push_stack(n as u8);
         }
     }
 }
