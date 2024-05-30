@@ -296,7 +296,14 @@ impl CPU {
                 _ => todo!("op not implemented"),
             }
 
-            self.program_counter += (op.bytes - 1) as u16;
+            match op.mnemonic_name {
+                JMP | JSR => {
+                    // no-op
+                },
+                _ => {
+                    self.program_counter += (op.bytes - 1) as u16;
+                }
+            }
         }
     }
 
@@ -497,7 +504,13 @@ impl CPU {
 
     fn jmp(&mut self, mode: AddressingMode) {
         let addr = self.get_op_target_addr(mode);
-        self.program_counter = addr;
+
+        let mut v = addr;
+        if mode == AddressingMode::Indirect {
+            v = self.memory.read_u16(addr);
+        }
+
+        self.program_counter = v;
     }
 
     fn set_register_a(&mut self, value: u8) {
