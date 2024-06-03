@@ -135,6 +135,8 @@ impl CPU {
 
             (0x4C, Operation::new(JMP, Absolute, 3)),
             (0x6C, Operation::new(JMP, Indirect, 3)),
+
+            (0x20, Operation::new(JSR, Absolute, 3)),
             
             (0xA9, Operation::new(LDA, Immediate, 2)),
             (0xA5, Operation::new(LDA, ZeroPage, 2)),
@@ -287,6 +289,7 @@ impl CPU {
                 INX => self.inx(),
                 INY => self.iny(),
                 JMP => self.jmp(op.addressing_mode),
+                JSR => self.jsr(),
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
@@ -513,6 +516,15 @@ impl CPU {
         self.program_counter = v;
     }
 
+    fn jsr(&mut self) {
+        let subroutine_addr = self.get_op_target_addr(AddressingMode::Absolute);
+
+        // the subroutine return address on the stack
+        // points to the second byte of data for JSR (ie.: 0x20, 0x00, ->0xFF<-)
+        self.push_u16_stack(self.program_counter + 1);
+        self.program_counter = subroutine_addr;
+    }
+
     fn set_register_a(&mut self, value: u8) {
         self.register_a = value;
         self.set_zero_flag(self.register_a);
@@ -601,10 +613,25 @@ impl CPU {
         }
     }
 
-    #[allow(dead_code)] //todo: remove when used by operations
+    fn push_u16_stack(&mut self, value: u16) {
+        let hi = (value >> 8) as u8;
+        let lo = (value & 0xFF) as u8;
+
+        self.push_stack(hi);
+        self.push_stack(lo);
+    }
+
     fn push_stack(&mut self, value: u8) {
         self.memory.write(self.stack_pointer_u16(), value);
         self.stack_pointer -= 1;
+    }
+
+    #[allow(dead_code)] //todo: remove when used by operations
+    fn pop_u16_stack(&mut self) -> u16 {
+        let lo = self.pop_stack() as u16;
+        let hi = self.pop_stack() as u16;
+
+        return (hi << 8) | lo;
     }
 
     #[allow(dead_code)] //todo: remove when used by operations
@@ -627,7 +654,7 @@ mod tests {
     use super::CPU;
 
     #[test]
-    fn test_stack_pushes_correctly() {
+    fn test_stack_pushes_and_pops_correctly() {
         let mut cpu = CPU::new();
         assert_eq!(cpu.stack_pointer, 0xFF);
         
@@ -638,10 +665,14 @@ mod tests {
         cpu.push_stack(0x02);
         assert_eq!(cpu.memory.read(0x01FE), 0x02);
         assert_eq!(cpu.stack_pointer, 0xFD);
+
+        cpu.pop_stack();
+        assert_eq!(cpu.memory.read(0x01FE), 0x00);
+        assert_eq!(cpu.stack_pointer, 0xFE);
     }
 
     #[test]
-    fn test_stack_pops_correctly() {
+    fn test_stack_pushes_and_pops_u16_correctly() {
         let mut cpu = CPU::new();
         assert_eq!(cpu.stack_pointer, 0xFF);
         
@@ -649,9 +680,17 @@ mod tests {
         assert_eq!(cpu.memory.read(0x01FF), 0x55);
         assert_eq!(cpu.stack_pointer, 0xFE);
 
-        cpu.pop_stack();
-        assert_eq!(cpu.memory.read(0x01FF), 0x00);
-        assert_eq!(cpu.stack_pointer, 0xFF);
+        cpu.push_u16_stack(0x1011);
+        assert_eq!(cpu.memory.read(0x01FE), 0x10);
+        assert_eq!(cpu.memory.read(0x01FD), 0x11);
+        assert_eq!(cpu.stack_pointer, 0xFC);
+
+        cpu.pop_u16_stack();
+        assert_eq!(cpu.memory.read(0x01FE), 0x00);
+        assert_eq!(cpu.memory.read(0x01FD), 0x00);
+        assert_eq!(cpu.stack_pointer, 0xFE);
+
+        assert_eq!(cpu.memory.read(0x01FF), 0x55);
     }
 
     #[test]
