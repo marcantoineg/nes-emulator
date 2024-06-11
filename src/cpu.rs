@@ -159,6 +159,12 @@ impl CPU {
             (0xAC, Operation::new(LDY, Absolute, 3)),
             (0xBC, Operation::new(LDY, AbsoluteX, 3)),
 
+            (0x4A, Operation::new(LSR, Implied, 1)),
+            (0x46, Operation::new(LSR, ZeroPage, 2)),
+            (0x56, Operation::new(LSR, ZeroPageX, 2)),
+            (0x4E, Operation::new(LSR, Absolute, 3)),
+            (0x5E, Operation::new(LSR, AbsoluteX, 3)),
+
             (0xAA, Operation::new(TAX, Implied, 1)),
             (0xA8, Operation::new(TAY, Implied, 1)),
         ]);
@@ -293,6 +299,7 @@ impl CPU {
                 LDA => self.lda(op.addressing_mode),
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
+                LSR => self.lsr(op.addressing_mode),
                 TAX => self.tax(),
                 TAY => self.tay(),
 
@@ -523,6 +530,19 @@ impl CPU {
         // points to the second byte of data for JSR (ie.: 0x20, 0x00, ->0xFF<-)
         self.push_u16_stack(self.program_counter + 1);
         self.program_counter = subroutine_addr;
+    }
+
+    fn lsr(&mut self, mode: AddressingMode) {
+        if mode == AddressingMode::Implied {
+            self.set_carry_flag((self.register_a & 0b0000_0001) != 0);
+            self.set_register_a(self.register_a >> 1);
+        } else {
+            let addr = self.get_op_target_addr(mode);
+            let mem_value = self.memory.read(addr);
+            
+            self.set_carry_flag((mem_value & 0b0000_0001) != 0);
+            self.set_memory(addr, mem_value >> 1);
+        }
     }
 
     fn set_register_a(&mut self, value: u8) {
