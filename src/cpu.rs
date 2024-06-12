@@ -167,6 +167,15 @@ impl CPU {
 
             (0xEA, Operation::new(NOP, Implied, 1)),
 
+            (0x09, Operation::new(ORA, Immediate, 2)),
+            (0x05, Operation::new(ORA, ZeroPage, 2)),
+            (0x15, Operation::new(ORA, ZeroPageX, 2)),
+            (0x0D, Operation::new(ORA, Absolute, 3)),
+            (0x1D, Operation::new(ORA, AbsoluteX, 3)),
+            (0x19, Operation::new(ORA, AbsoluteY, 3)),
+            (0x01, Operation::new(ORA, IndirectX, 2)),
+            (0x11, Operation::new(ORA, IndirectY, 2)),
+
             (0xAA, Operation::new(TAX, Implied, 1)),
             (0xA8, Operation::new(TAY, Implied, 1)),
         ]);
@@ -303,6 +312,7 @@ impl CPU {
                 LDY => self.ldy(op.addressing_mode),
                 LSR => self.lsr(op.addressing_mode),
                 NOP => {},
+                ORA => self.ora(op.addressing_mode),
                 TAX => self.tax(),
                 TAY => self.tay(),
 
@@ -546,6 +556,13 @@ impl CPU {
             self.set_carry_flag((mem_value & 0b0000_0001) != 0);
             self.set_memory(addr, mem_value >> 1);
         }
+    }
+
+    fn ora(&mut self, mode: AddressingMode) {
+        let addr = self.get_op_target_addr(mode);
+        let mem_value = self.memory.read(addr);
+
+        self.set_register_a(self.register_a | mem_value);
     }
 
     fn set_register_a(&mut self, value: u8) {
