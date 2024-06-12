@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-
 use bitflags::bitflags;
 
-use crate::{memory::Memory, operation::{AddressingMode, OpName, Operation}};
+use crate::{memory::Memory, operation::{AddressingMode, OpName, OPERATIONS_MAP}};
 
 pub struct CPU {
     pub register_a: u8,
@@ -12,8 +10,6 @@ pub struct CPU {
     pub program_counter: u16,
     pub stack_pointer: u8,
     pub memory: Memory,
-
-    operations_map: HashMap<u8, Operation>,
 }
 
 bitflags! {
@@ -42,144 +38,6 @@ bitflags! {
 
 impl CPU {
     pub fn new() -> Self {
-        use AddressingMode::*;
-        use OpName::*;
-
-        let operations: HashMap<u8, Operation> = HashMap::from([
-            (0x69/*noice*/, Operation::new(ADC, Immediate, 2)),
-            (0x65, Operation::new(ADC, ZeroPage, 2)),
-            (0x75, Operation::new(ADC, ZeroPageX, 2)),
-            (0x6D, Operation::new(ADC, Absolute, 3)),
-            (0x7D, Operation::new(ADC, AbsoluteX, 3)),
-            (0x79, Operation::new(ADC, AbsoluteY, 3)),
-            (0x61, Operation::new(ADC, IndirectX, 2)),
-            (0x71, Operation::new(ADC, IndirectY, 2)),
-
-            (0x29, Operation::new(AND, Immediate, 2)),
-            (0x25, Operation::new(AND, ZeroPage, 2)),
-            (0x35, Operation::new(AND, ZeroPageX, 2)),
-            (0x2D, Operation::new(AND, Absolute, 3)),
-            (0x3D, Operation::new(AND, AbsoluteX, 3)),
-            (0x39, Operation::new(AND, AbsoluteY, 3)),
-            (0x21, Operation::new(AND, IndirectX, 2)),
-            (0x31, Operation::new(AND, IndirectY, 2)),
-
-            (0x0A, Operation::new(ASL, Implied, 1)),
-            (0x06, Operation::new(ASL, ZeroPage, 2)),
-            (0x16, Operation::new(ASL, ZeroPageX, 2)),
-            (0x0E, Operation::new(ASL, Absolute, 3)),
-            (0x1E, Operation::new(ASL, AbsoluteX, 3)),
-
-            (0x90, Operation::new(BCC, Relative, 2)),
-            (0xB0, Operation::new(BCS, Relative, 2)),
-            (0xF0, Operation::new(BEQ, Relative, 2)),
-            (0x30, Operation::new(BMI, Relative, 2)),
-            (0xD0, Operation::new(BNE, Relative, 2)),
-            (0x10, Operation::new(BPL, Relative, 2)),
-            (0x50, Operation::new(BVC, Relative, 2)),
-            (0x70, Operation::new(BVS, Relative, 2)),
-
-            (0x24, Operation::new(BIT, ZeroPage, 2)),
-            (0x2C, Operation::new(BIT, Absolute, 3)),
-
-            (0x00, Operation::new(BRK, Implied, 1)),
-
-            (0x18, Operation::new(CLC, Implied, 1)),
-            (0xD8, Operation::new(CLD, Implied, 1)),
-            (0x58, Operation::new(CLI, Implied, 1)),
-            (0xB8, Operation::new(CLV, Implied, 1)),
-
-            (0xC9, Operation::new(CMP, Immediate, 2)),
-            (0xC5, Operation::new(CMP, ZeroPage, 2)),
-            (0xD5, Operation::new(CMP, ZeroPageX, 2)),
-            (0xCD, Operation::new(CMP, Absolute, 3)),
-            (0xDD, Operation::new(CMP, AbsoluteX, 3)),
-            (0xD9, Operation::new(CMP, AbsoluteY, 3)),
-            (0xC1, Operation::new(CMP, IndirectX, 2)),
-            (0xD1, Operation::new(CMP, IndirectY, 2)),
-
-            (0xE0, Operation::new(CPX, Immediate, 2)),
-            (0xE4, Operation::new(CPX, ZeroPage, 2)),
-            (0xEC, Operation::new(CPX, Absolute, 3)),
-
-            (0xC0, Operation::new(CPY, Immediate, 2)),
-            (0xC4, Operation::new(CPY, ZeroPage, 2)),
-            (0xCC, Operation::new(CPY, Absolute, 3)),
-
-            (0xC6, Operation::new(DEC, ZeroPage, 2)),
-            (0xD6, Operation::new(DEC, ZeroPageX, 2)),
-            (0xCE, Operation::new(DEC, Absolute, 3)),
-            (0xDE, Operation::new(DEC, AbsoluteX, 3)),
-
-            (0xCA, Operation::new(DEX, Implied, 1)),
-
-            (0x88, Operation::new(DEY, Implied, 1)),
-
-            (0x49, Operation::new(EOR, Immediate, 2)),
-            (0x45, Operation::new(EOR, ZeroPage, 2)),
-            (0x55, Operation::new(EOR, ZeroPageX, 2)),
-            (0x4D, Operation::new(EOR, Absolute, 3)),
-            (0x5D, Operation::new(EOR, AbsoluteX, 3)),
-            (0x59, Operation::new(EOR, AbsoluteY, 3)),
-            (0x41, Operation::new(EOR, IndirectX, 2)),
-            (0x51, Operation::new(EOR, IndirectY, 2)),
-
-            (0xE6, Operation::new(INC, ZeroPage, 2)),
-            (0xF6, Operation::new(INC, ZeroPageX, 2)),
-            (0xEE, Operation::new(INC, Absolute, 3)),
-            (0xFE, Operation::new(INC, AbsoluteX, 3)),
-
-            (0xE8, Operation::new(INX, Implied, 2)),
-
-            (0xC8, Operation::new(INY, Implied, 2)),
-
-            (0x4C, Operation::new(JMP, Absolute, 3)),
-            (0x6C, Operation::new(JMP, Indirect, 3)),
-
-            (0x20, Operation::new(JSR, Absolute, 3)),
-            
-            (0xA9, Operation::new(LDA, Immediate, 2)),
-            (0xA5, Operation::new(LDA, ZeroPage, 2)),
-            (0xB5, Operation::new(LDA, ZeroPageX, 2)),
-            (0xAD, Operation::new(LDA, Absolute, 3)),
-            (0xBD, Operation::new(LDA, AbsoluteX, 3)),
-            (0xB9, Operation::new(LDA, AbsoluteY, 3)),
-            (0xA1, Operation::new(LDA, IndirectX, 2)),
-            (0xB1, Operation::new(LDA, IndirectY, 2)),
-
-            (0xA2, Operation::new(LDX, Immediate, 2)),
-            (0xA6, Operation::new(LDX, ZeroPage, 2)),
-            (0xB6, Operation::new(LDX, ZeroPageY, 2)),
-            (0xAE, Operation::new(LDX, Absolute, 3)),
-            (0xBE, Operation::new(LDX, AbsoluteY, 3)),
-
-            (0xA0, Operation::new(LDY, Immediate, 2)),
-            (0xA4, Operation::new(LDY, ZeroPage, 2)),
-            (0xB4, Operation::new(LDY, ZeroPageX, 2)),
-            (0xAC, Operation::new(LDY, Absolute, 3)),
-            (0xBC, Operation::new(LDY, AbsoluteX, 3)),
-
-            (0x4A, Operation::new(LSR, Implied, 1)),
-            (0x46, Operation::new(LSR, ZeroPage, 2)),
-            (0x56, Operation::new(LSR, ZeroPageX, 2)),
-            (0x4E, Operation::new(LSR, Absolute, 3)),
-            (0x5E, Operation::new(LSR, AbsoluteX, 3)),
-
-            (0xEA, Operation::new(NOP, Implied, 1)),
-
-            (0x09, Operation::new(ORA, Immediate, 2)),
-            (0x05, Operation::new(ORA, ZeroPage, 2)),
-            (0x15, Operation::new(ORA, ZeroPageX, 2)),
-            (0x0D, Operation::new(ORA, Absolute, 3)),
-            (0x1D, Operation::new(ORA, AbsoluteX, 3)),
-            (0x19, Operation::new(ORA, AbsoluteY, 3)),
-            (0x01, Operation::new(ORA, IndirectX, 2)),
-            (0x11, Operation::new(ORA, IndirectY, 2)),
-
-            (0xAA, Operation::new(TAX, Implied, 1)),
-            (0xA8, Operation::new(TAY, Implied, 1)),
-        ]);
-
         CPU {
             register_a: 0,
             register_x: 0,
@@ -188,7 +46,6 @@ impl CPU {
             program_counter: 0,
             stack_pointer: 0xFF,
             memory: Memory::new(),
-            operations_map: operations,
         }
     }
 
@@ -221,7 +78,7 @@ impl CPU {
         self.program_counter = self.memory.read_u16(0xFFFC);
     }
 
-    fn get_op_target_addr(&mut self, mode: AddressingMode) -> u16 {
+    fn get_op_target_addr(&mut self, mode: &AddressingMode) -> u16 {
         use AddressingMode::*;
         match mode {
             Immediate | Relative => {
@@ -273,14 +130,16 @@ impl CPU {
 
         loop {
             let op_code = self.memory.read(self.program_counter);
-            let op = self.operations_map[&op_code];
+            let op = OPERATIONS_MAP.get(&op_code).unwrap_or_else(|| {
+                panic!("unrecognized operation: 0x{:02X?}", op_code)
+            });
 
             self.program_counter += 1;
 
             match op.mnemonic_name {
-                ADC => self.adc(op.addressing_mode),
-                AND => self.and(op.addressing_mode),
-                ASL => self.asl(op.addressing_mode),
+                ADC => self.adc(&op.addressing_mode),
+                AND => self.and(&op.addressing_mode),
+                ASL => self.asl(&op.addressing_mode),
                 BCC => self.bcc(),
                 BCS => self.bcs(),
                 BEQ => self.beq(),
@@ -289,30 +148,30 @@ impl CPU {
                 BPL => self.bpl(),
                 BVC => self.bvc(),
                 BVS => self.bvs(),
-                BIT => self.bit(op.addressing_mode),
+                BIT => self.bit(&op.addressing_mode),
                 BRK => return,
                 CLC => self.set_carry_flag(false),
                 CLD => self.set_decimal_flag(false),
                 CLI => self.set_interupt_flag(false),
                 CLV => self.set_overflow_flag(false),
-                CMP => self.cmp(op.addressing_mode),
-                CPX => self.cpx(op.addressing_mode),
-                CPY => self.cpy(op.addressing_mode),
-                DEC => self.dec(op.addressing_mode),
+                CMP => self.cmp(&op.addressing_mode),
+                CPX => self.cpx(&op.addressing_mode),
+                CPY => self.cpy(&op.addressing_mode),
+                DEC => self.dec(&op.addressing_mode),
                 DEX => self.dex(),
                 DEY => self.dey(),
-                EOR => self.eor(op.addressing_mode),
-                INC => self.inc(op.addressing_mode),
+                EOR => self.eor(&op.addressing_mode),
+                INC => self.inc(&op.addressing_mode),
                 INX => self.inx(),
                 INY => self.iny(),
-                JMP => self.jmp(op.addressing_mode),
+                JMP => self.jmp(&op.addressing_mode),
                 JSR => self.jsr(),
-                LDA => self.lda(op.addressing_mode),
-                LDX => self.ldx(op.addressing_mode),
-                LDY => self.ldy(op.addressing_mode),
-                LSR => self.lsr(op.addressing_mode),
+                LDA => self.lda(&op.addressing_mode),
+                LDX => self.ldx(&op.addressing_mode),
+                LDY => self.ldy(&op.addressing_mode),
+                LSR => self.lsr(&op.addressing_mode),
                 NOP => {},
-                ORA => self.ora(op.addressing_mode),
+                ORA => self.ora(&op.addressing_mode),
                 TAX => self.tax(),
                 TAY => self.tay(),
 
@@ -330,7 +189,7 @@ impl CPU {
         }
     }
 
-    fn adc(&mut self, mode: AddressingMode) {
+    fn adc(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
 
         let mem_value = self.memory.read(addr);
@@ -346,14 +205,14 @@ impl CPU {
         self.set_register_a(wrapped_sum);
     }
 
-    fn and(&mut self, mode: AddressingMode) {
+    fn and(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
         self.set_register_a(self.register_a & mem_value)
     }
 
-    fn asl(&mut self, mode: AddressingMode) {
-        if mode == AddressingMode::Implied {
+    fn asl(&mut self, mode: &AddressingMode) {
+        if *mode == AddressingMode::Implied {
             let left_shifted_value = self.register_a << 1;
             
             self.set_carry_flag(self.register_a & 0x80 != 0);
@@ -414,7 +273,7 @@ impl CPU {
             return;
         }
 
-        let addr = self.get_op_target_addr(AddressingMode::Immediate);
+        let addr = self.get_op_target_addr(&AddressingMode::Immediate);
         let offset = self.memory.read(addr);
         if offset == 0 { return; }
 
@@ -426,7 +285,7 @@ impl CPU {
         }
     }
 
-    fn bit(&mut self, mode: AddressingMode) {
+    fn bit(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
 
@@ -435,19 +294,19 @@ impl CPU {
         self.set_overflow_flag(mem_value & Flags::Overflow.bits() != 0);
     }
 
-    fn cmp(&mut self, mode: AddressingMode) {
+    fn cmp(&mut self, mode: &AddressingMode) {
         self.compare(mode, self.register_a);
     }
 
-    fn cpx(&mut self, mode: AddressingMode) {
+    fn cpx(&mut self, mode: &AddressingMode) {
         self.compare(mode, self.register_x);
     }
 
-    fn cpy(&mut self, mode: AddressingMode) {
+    fn cpy(&mut self, mode: &AddressingMode) {
         self.compare(mode, self.register_y);
     }
 
-    fn compare(&mut self, mode: AddressingMode, register_value: u8) {
+    fn compare(&mut self, mode: &AddressingMode, register_value: u8) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
 
@@ -457,7 +316,7 @@ impl CPU {
         self.set_negative_flag(result);
     }
 
-    fn dec(&mut self, mode: AddressingMode) {
+    fn dec(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
 
@@ -475,26 +334,26 @@ impl CPU {
         self.set_register_y(result);
     }
 
-    fn eor(&mut self, mode: AddressingMode) {
+    fn eor(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
         let result = self.register_a ^ mem_value;
         self.set_register_a(result);
     }
 
-    fn lda(&mut self, mode: AddressingMode) {
+    fn lda(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
         self.set_register_a(mem_value);
     }
 
-    fn ldx(&mut self, mode: AddressingMode) {
+    fn ldx(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
         self.set_register_x(mem_value);
     }
 
-    fn ldy(&mut self, mode: AddressingMode) {
+    fn ldy(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
         self.set_register_y(mem_value);
@@ -508,7 +367,7 @@ impl CPU {
         self.set_register_y(self.register_a);
     }
 
-    fn inc(&mut self, mode: AddressingMode) {
+    fn inc(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
 
@@ -525,11 +384,11 @@ impl CPU {
         self.set_register_y(v);
     }
 
-    fn jmp(&mut self, mode: AddressingMode) {
+    fn jmp(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
 
         let mut v = addr;
-        if mode == AddressingMode::Indirect {
+        if *mode == AddressingMode::Indirect {
             v = self.memory.read_u16(addr);
         }
 
@@ -537,7 +396,7 @@ impl CPU {
     }
 
     fn jsr(&mut self) {
-        let subroutine_addr = self.get_op_target_addr(AddressingMode::Absolute);
+        let subroutine_addr = self.get_op_target_addr(&AddressingMode::Absolute);
 
         // the subroutine return address on the stack
         // points to the second byte of data for JSR (ie.: 0x20, 0x00, ->0xFF<-)
@@ -545,8 +404,8 @@ impl CPU {
         self.program_counter = subroutine_addr;
     }
 
-    fn lsr(&mut self, mode: AddressingMode) {
-        if mode == AddressingMode::Implied {
+    fn lsr(&mut self, mode: &AddressingMode) {
+        if *mode == AddressingMode::Implied {
             self.set_carry_flag((self.register_a & 0b0000_0001) != 0);
             self.set_register_a(self.register_a >> 1);
         } else {
@@ -558,7 +417,7 @@ impl CPU {
         }
     }
 
-    fn ora(&mut self, mode: AddressingMode) {
+    fn ora(&mut self, mode: &AddressingMode) {
         let addr = self.get_op_target_addr(mode);
         let mem_value = self.memory.read(addr);
 
