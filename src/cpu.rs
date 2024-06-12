@@ -165,6 +165,8 @@ impl CPU {
             (0x4E, Operation::new(LSR, Absolute, 3)),
             (0x5E, Operation::new(LSR, AbsoluteX, 3)),
 
+            (0xEA, Operation::new(NOP, Implied, 1)),
+
             (0xAA, Operation::new(TAX, Implied, 1)),
             (0xA8, Operation::new(TAY, Implied, 1)),
         ]);
@@ -300,6 +302,7 @@ impl CPU {
                 LDX => self.ldx(op.addressing_mode),
                 LDY => self.ldy(op.addressing_mode),
                 LSR => self.lsr(op.addressing_mode),
+                NOP => {},
                 TAX => self.tax(),
                 TAY => self.tay(),
 
