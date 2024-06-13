@@ -172,6 +172,7 @@ impl CPU {
                 LSR => self.lsr(&op.addressing_mode),
                 NOP => {},
                 ORA => self.ora(&op.addressing_mode),
+                PHA => self.pha(),
                 TAX => self.tax(),
                 TAY => self.tay(),
 
@@ -400,7 +401,7 @@ impl CPU {
 
         // the subroutine return address on the stack
         // points to the second byte of data for JSR (ie.: 0x20, 0x00, ->0xFF<-)
-        self.push_u16_stack(self.program_counter + 1);
+        self.push_u16_to_stack(self.program_counter + 1);
         self.program_counter = subroutine_addr;
     }
 
@@ -422,6 +423,10 @@ impl CPU {
         let mem_value = self.memory.read(addr);
 
         self.set_register_a(self.register_a | mem_value);
+    }
+
+    fn pha(&mut self) {
+        self.push_to_stack(self.register_a);
     }
 
     fn set_register_a(&mut self, value: u8) {
@@ -512,15 +517,15 @@ impl CPU {
         }
     }
 
-    fn push_u16_stack(&mut self, value: u16) {
+    fn push_u16_to_stack(&mut self, value: u16) {
         let hi = (value >> 8) as u8;
         let lo = (value & 0xFF) as u8;
 
-        self.push_stack(hi);
-        self.push_stack(lo);
+        self.push_to_stack(hi);
+        self.push_to_stack(lo);
     }
 
-    fn push_stack(&mut self, value: u8) {
+    fn push_to_stack(&mut self, value: u8) {
         self.memory.write(self.stack_pointer_u16(), value);
         self.stack_pointer -= 1;
     }
@@ -557,11 +562,11 @@ mod tests {
         let mut cpu = CPU::new();
         assert_eq!(cpu.stack_pointer, 0xFF);
         
-        cpu.push_stack(0x55);
+        cpu.push_to_stack(0x55);
         assert_eq!(cpu.memory.read(0x01FF), 0x55);
         assert_eq!(cpu.stack_pointer, 0xFE);
 
-        cpu.push_stack(0x02);
+        cpu.push_to_stack(0x02);
         assert_eq!(cpu.memory.read(0x01FE), 0x02);
         assert_eq!(cpu.stack_pointer, 0xFD);
 
@@ -575,11 +580,11 @@ mod tests {
         let mut cpu = CPU::new();
         assert_eq!(cpu.stack_pointer, 0xFF);
         
-        cpu.push_stack(0x55);
+        cpu.push_to_stack(0x55);
         assert_eq!(cpu.memory.read(0x01FF), 0x55);
         assert_eq!(cpu.stack_pointer, 0xFE);
 
-        cpu.push_u16_stack(0x1011);
+        cpu.push_u16_to_stack(0x1011);
         assert_eq!(cpu.memory.read(0x01FE), 0x10);
         assert_eq!(cpu.memory.read(0x01FD), 0x11);
         assert_eq!(cpu.stack_pointer, 0xFC);
@@ -604,7 +609,7 @@ mod tests {
     fn test_stack_panic_when_pointer_underflow() {
         let mut cpu = CPU::new();
         for n in 1..257 {
-            cpu.push_stack(n as u8);
+            cpu.push_to_stack(n as u8);
         }
     }
 }
