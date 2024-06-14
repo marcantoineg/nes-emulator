@@ -174,6 +174,7 @@ impl CPU {
                 ORA => self.ora(&op.addressing_mode),
                 PHA => self.pha(),
                 PHP => self.php(),
+                PLA => self.pla(),
                 TAX => self.tax(),
                 TAY => self.tay(),
 
@@ -434,6 +435,11 @@ impl CPU {
         self.push_to_stack(self.status.bits());
     }
 
+    fn pla(&mut self) {
+        let v = self.pop_stack();
+        self.set_register_a(v);
+    }
+
     fn set_register_a(&mut self, value: u8) {
         self.register_a = value;
         self.set_zero_flag(self.register_a);
@@ -543,7 +549,6 @@ impl CPU {
         return (hi << 8) | lo;
     }
 
-    #[allow(dead_code)] //todo: remove when used by operations
     fn pop_stack(&mut self) -> u8 {
         let stack_pointer_u16 = self.stack_pointer_u16() + 1;
         let value = self.memory.read(stack_pointer_u16);
