@@ -173,6 +173,7 @@ impl CPU {
                 NOP => {},
                 ORA => self.ora(&op.addressing_mode),
                 PHA => self.pha(),
+                PHP => self.php(),
                 TAX => self.tax(),
                 TAY => self.tay(),
 
@@ -427,6 +428,10 @@ impl CPU {
 
     fn pha(&mut self) {
         self.push_to_stack(self.register_a);
+    }
+
+    fn php(&mut self) {
+        self.push_to_stack(self.status.bits());
     }
 
     fn set_register_a(&mut self, value: u8) {

@@ -138,6 +138,8 @@ lazy_static! {
 
         m.insert(0x48, Operation::new(PHA, Implied, 1));
 
+        m.insert(0x08, Operation::new(PHP, Implied, 1));
+
         m.insert(0xAA, Operation::new(TAX, Implied, 1));
         m.insert(0xA8, Operation::new(TAY, Implied, 1));
         m
