@@ -1,14 +1,14 @@
+use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
-use nes_emulator::cpu::{CPU, Flags};
 
 mod common;
-use common::{assert_flag, assert_no_flags, assert_flags};
+use common::{assert_flag, assert_flags, assert_no_flags};
 
 #[test]
 fn test_0x69_adc_immediate_adds_correctly() {
     let mut cpu = CPU::new();
     cpu.register_a = 0x01;
-    
+
     cpu.load_and_run_without_reset(vec![0x69, 0x01, 0x00]);
 
     assert_eq!(cpu.register_a, 0x02);
@@ -33,7 +33,7 @@ fn test_0x69_adc_immediate_zero_flag() {
     cpu.register_a = 0x00;
 
     cpu.load_and_run_without_reset(vec![0x69, 0x00, 0x00]);
-    
+
     assert_eq!(cpu.register_a, 0x00);
     assert_flag(&cpu, Flags::Zero);
 }
@@ -44,7 +44,7 @@ fn test_0x69_adc_immediate_negative_flag() {
     cpu.register_a = 0;
 
     cpu.load_and_run_without_reset(vec![0x69, 0b1000_0001, 0x00]);
-    
+
     assert_eq!(cpu.register_a, 0b1000_0001);
     assert_flag(&cpu, Flags::Negative);
 }
@@ -72,7 +72,7 @@ mod adc_overflow_flag_tests {
         cpu.register_a = 0x50;
 
         cpu.load_and_run_without_reset(vec![0x69, 0x10, 0x00]);
-        
+
         assert_eq!(cpu.register_a, 0x60);
         assert_no_flags(&cpu)
     }
@@ -94,7 +94,7 @@ mod adc_overflow_flag_tests {
         cpu.register_a = 0x50;
 
         cpu.load_and_run_without_reset(vec![0x69, 0x90, 0x00]);
-        
+
         assert_eq!(cpu.register_a, 0xE0);
         assert_flags(&cpu, vec![Flags::Negative])
     }
@@ -105,7 +105,7 @@ mod adc_overflow_flag_tests {
         cpu.register_a = 0x50;
 
         cpu.load_and_run_without_reset(vec![0x69, 0xD0, 0x00]);
-        
+
         assert_eq!(cpu.register_a, 0x20);
         assert_flag(&cpu, Flags::Carry);
     }
@@ -116,7 +116,7 @@ mod adc_overflow_flag_tests {
         cpu.register_a = 0xD0;
 
         cpu.load_and_run_without_reset(vec![0x69, 0x10, 0x00]);
-        
+
         assert_eq!(cpu.register_a, 0xE0);
         assert_flag(&cpu, Flags::Negative);
     }
@@ -127,7 +127,7 @@ mod adc_overflow_flag_tests {
         cpu.register_a = 0xD0;
 
         cpu.load_and_run_without_reset(vec![0x69, 0x50, 0x00]);
-        
+
         assert_eq!(cpu.register_a, 0x20);
         assert_flag(&cpu, Flags::Carry);
     }
@@ -149,7 +149,7 @@ mod adc_overflow_flag_tests {
         cpu.register_a = 0xD0;
 
         cpu.load_and_run_without_reset(vec![0x69, 0xD0, 0x00]);
-        
+
         assert_eq!(cpu.register_a, 0xA0);
         assert_flags(&cpu, vec![Flags::Negative, Flags::Carry]);
     }

@@ -1,4 +1,4 @@
-use nes_emulator::cpu::{CPU, Flags};
+use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
 use common::{assert_flag, assert_flags};
@@ -35,11 +35,15 @@ generate_0x08_implied_single_flag_test! {
 #[test]
 fn test_0x08_implied_saves_multiple_flags_correctly() {
     let mut cpu = CPU::new();
-    cpu.status.insert(Flags::Carry | Flags::Zero | Flags::Negative);
+    cpu.status
+        .insert(Flags::Carry | Flags::Zero | Flags::Negative);
     println!("status: {}", cpu.status.bits());
 
     cpu.load_and_run_without_reset(vec![0x08, 0x00]);
-    
+
     assert_flags(&cpu, vec![Flags::Carry, Flags::Zero, Flags::Negative]);
-    assert_eq!(cpu.memory.read(0x01FF), (Flags::Carry | Flags::Zero | Flags::Negative | Flags::Init).bits());
+    assert_eq!(
+        cpu.memory.read(0x01FF),
+        (Flags::Carry | Flags::Zero | Flags::Negative | Flags::Init).bits()
+    );
 }

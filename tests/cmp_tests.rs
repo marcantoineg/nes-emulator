@@ -1,5 +1,5 @@
+use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
-use nes_emulator::cpu::{CPU, Flags};
 
 mod common;
 use crate::common::{assert_flag, assert_flags};

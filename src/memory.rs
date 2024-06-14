@@ -1,7 +1,7 @@
 pub struct Memory {
     memory: [u8; 0xFFFF],
     debug: bool,
-    hex_dump: Vec<u8>
+    hex_dump: Vec<u8>,
 }
 
 impl Memory {
@@ -9,8 +9,8 @@ impl Memory {
         Memory {
             memory: [0; 0xFFFF],
             debug: false,
-            hex_dump: vec![]
-        } 
+            hex_dump: vec![],
+        }
     }
 
     pub fn set_debug(&mut self) {
@@ -18,7 +18,7 @@ impl Memory {
     }
 
     pub fn load_program(&mut self, data: Vec<u8>) {
-        self.memory[0x8000 .. 0x8000 + data.len()].copy_from_slice(&data[..]);
+        self.memory[0x8000..0x8000 + data.len()].copy_from_slice(&data[..]);
     }
 
     pub fn read_u16(&mut self, addr: u16) -> u16 {

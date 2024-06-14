@@ -25,7 +25,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         if: steps.changes.outputs.rust == 'true'
         with:
-          components: llvm-tools-preview
+          components: llvm-tools-preview, rustfmt
 
       - uses: taiki-e/install-action@cargo-llvm-cov
         if: steps.changes.outputs.rust == 'true'
@@ -33,6 +33,10 @@ jobs:
       - name: build
         if: steps.changes.outputs.rust == 'true'
         run: cargo build --verbose
+
+      - name: rustfmt
+        if: steps.changes.outputs.rust == 'true'
+        run: cargo fmt --check
 
       - name: tests with coverage
         if: steps.changes.outputs.rust == 'true'

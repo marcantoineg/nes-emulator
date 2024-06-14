@@ -1,5 +1,5 @@
+use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
-use nes_emulator::cpu::{CPU, Flags};
 
 #[allow(dead_code)]
 pub fn assert_no_flags(cpu: &CPU) {
@@ -18,8 +18,12 @@ pub fn assert_flags(cpu: &CPU, enabled_flags: Vec<Flags>) {
             continue;
         }
         assert_eq!(
-            cpu.status.contains(f), enabled_flags.contains(&f),
-            "CPU status: {:#010b} | Failing Flag: {} ({:#010b})", cpu.status.bits(), get_flag_name(f), f.bits()
+            cpu.status.contains(f),
+            enabled_flags.contains(&f),
+            "CPU status: {:#010b} | Failing Flag: {} ({:#010b})",
+            cpu.status.bits(),
+            get_flag_name(f),
+            f.bits()
         )
     }
 }
@@ -35,7 +39,7 @@ fn get_flag_name(f: Flags) -> &'static str {
         Flags::Break2 => "Break 2",
         Flags::Overflow => "Overflow",
         Flags::Negative => "Negative",
-        _ => "Unhandled Flag"
+        _ => "Unhandled Flag",
     }
 }
 

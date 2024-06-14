@@ -97,7 +97,7 @@ lazy_static! {
         m.insert(0x6C, Operation::new(JMP, Indirect, 3));
 
         m.insert(0x20, Operation::new(JSR, Absolute, 3));
-            
+
         m.insert(0xA9, Operation::new(LDA, Immediate, 2));
         m.insert(0xA5, Operation::new(LDA, ZeroPage, 2));
         m.insert(0xB5, Operation::new(LDA, ZeroPageX, 2));
@@ -148,6 +148,7 @@ lazy_static! {
     };
 }
 
+#[rustfmt::skip]
 pub enum OpName {
     ADC,AND,ASL,
     BCC,BCS,BEQ,BIT,BMI,BNE,BPL,BRK,BVC,BVS,

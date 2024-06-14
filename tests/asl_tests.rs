@@ -1,5 +1,5 @@
+use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
-use nes_emulator::cpu::{CPU, Flags};
 
 mod common;
 use common::{assert_flag, assert_no_flags};
@@ -43,7 +43,7 @@ fn test_0x0a_asl_implied_carry_flag() {
     cpu.register_a = 0b1000_0001;
 
     cpu.load_and_run_without_reset(vec![0x0a, 0x00]);
-    
+
     assert_eq!(cpu.register_a, 0b0000_0010);
     assert_flag(&cpu, Flags::Carry);
 }
