@@ -1,6 +1,9 @@
 use bitflags::bitflags;
 
-use crate::{memory::Memory, operation::{AddressingMode, OpName, OPERATIONS_MAP}};
+use crate::{
+    memory::Memory,
+    operation::{AddressingMode, OpName, OPERATIONS_MAP},
+};
 
 pub struct CPU {
     pub register_a: u8,
@@ -130,9 +133,9 @@ impl CPU {
 
         loop {
             let op_code = self.memory.read(self.program_counter);
-            let op = OPERATIONS_MAP.get(&op_code).unwrap_or_else(|| {
-                panic!("unrecognized operation: 0x{:02X?}", op_code)
-            });
+            let op = OPERATIONS_MAP
+                .get(&op_code)
+                .unwrap_or_else(|| panic!("unrecognized operation: 0x{:02X?}", op_code));
 
             self.program_counter += 1;
 
@@ -170,7 +173,7 @@ impl CPU {
                 LDX => self.ldx(&op.addressing_mode),
                 LDY => self.ldy(&op.addressing_mode),
                 LSR => self.lsr(&op.addressing_mode),
-                NOP => {},
+                NOP => {}
                 ORA => self.ora(&op.addressing_mode),
                 PHA => self.pha(),
                 PHP => self.php(),
@@ -184,7 +187,7 @@ impl CPU {
             match op.mnemonic_name {
                 JMP | JSR => {
                     // no-op
-                },
+                }
                 _ => {
                     self.program_counter += (op.bytes - 1) as u16;
                 }
@@ -217,7 +220,7 @@ impl CPU {
     fn asl(&mut self, mode: &AddressingMode) {
         if *mode == AddressingMode::Implied {
             let left_shifted_value = self.register_a << 1;
-            
+
             self.set_carry_flag(self.register_a & 0x80 != 0);
             self.set_register_a(left_shifted_value);
         } else {
@@ -255,7 +258,7 @@ impl CPU {
         let condition = !self.zero_flag();
         self.branch(condition);
     }
-    
+
     fn bpl(&mut self) {
         let condition = !self.negative_flag();
         self.branch(condition);
@@ -278,7 +281,9 @@ impl CPU {
 
         let addr = self.get_op_target_addr(&AddressingMode::Immediate);
         let offset = self.memory.read(addr);
-        if offset == 0 { return; }
+        if offset == 0 {
+            return;
+        }
 
         let usigned_offset = (offset & 0b0111_1111) as u16;
         if offset & 0b1000_0000 != 0 {
@@ -383,7 +388,7 @@ impl CPU {
     }
 
     fn iny(&mut self) {
-        let  v = self.register_y.wrapping_add(1);
+        let v = self.register_y.wrapping_add(1);
         self.set_register_y(v);
     }
 
@@ -414,7 +419,7 @@ impl CPU {
         } else {
             let addr = self.get_op_target_addr(mode);
             let mem_value = self.memory.read(addr);
-            
+
             self.set_carry_flag((mem_value & 0b0000_0001) != 0);
             self.set_memory(addr, mem_value >> 1);
         }
@@ -571,7 +576,7 @@ mod tests {
     fn test_stack_pushes_and_pops_correctly() {
         let mut cpu = CPU::new();
         assert_eq!(cpu.stack_pointer, 0xFF);
-        
+
         cpu.push_to_stack(0x55);
         assert_eq!(cpu.memory.read(0x01FF), 0x55);
         assert_eq!(cpu.stack_pointer, 0xFE);
@@ -589,7 +594,7 @@ mod tests {
     fn test_stack_pushes_and_pops_u16_correctly() {
         let mut cpu = CPU::new();
         assert_eq!(cpu.stack_pointer, 0xFF);
-        
+
         cpu.push_to_stack(0x55);
         assert_eq!(cpu.memory.read(0x01FF), 0x55);
         assert_eq!(cpu.stack_pointer, 0xFE);

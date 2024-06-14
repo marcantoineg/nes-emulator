@@ -121,7 +121,7 @@ mod inc_absolute {
 
 mod inc_absolute_x {
     use super::*;
-    
+
     #[test]
     fn test_0xfe_inc_increments_memory_correctly() {
         let mut cpu = CPU::new();

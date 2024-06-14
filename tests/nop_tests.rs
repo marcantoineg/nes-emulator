@@ -1,5 +1,5 @@
+use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
-use nes_emulator::cpu::{CPU, Flags};
 
 mod common;
 use common::assert_flags;
@@ -10,8 +10,9 @@ fn test_0xea_nop_implied_does_nothing_and_updates_pc() {
     cpu.register_a = 0x01;
     cpu.register_x = 0x02;
     cpu.register_y = 0x03;
-    cpu.status.insert(Flags::Zero | Flags::Overflow | Flags::Carry);
-    
+    cpu.status
+        .insert(Flags::Zero | Flags::Overflow | Flags::Carry);
+
     cpu.load_and_run_without_reset(vec![0xEA]);
 
     assert_eq!(cpu.register_a, 0x01);

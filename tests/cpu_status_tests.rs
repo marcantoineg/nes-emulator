@@ -1,4 +1,4 @@
-use nes_emulator::cpu::{CPU, Flags};
+use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
 use crate::common::{assert_flag, assert_no_flags};

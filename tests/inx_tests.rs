@@ -3,7 +3,7 @@ use std::vec;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flag, assert_no_flags, assert_flags};
+use common::{assert_flag, assert_flags, assert_no_flags};
 
 #[test]
 fn test_0xe8_inx_implied_increment_x() {
@@ -20,7 +20,7 @@ fn test_0xe8_inx_implied_increment_x() {
 fn test_0xe8_inx_implied_overflow() {
     let mut cpu = CPU::new();
     cpu.register_x = 0xff;
-    
+
     cpu.load_and_run_without_reset(vec![0xE8, 0x00]);
 
     assert_eq!(cpu.register_x, 0);
