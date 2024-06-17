@@ -28,6 +28,13 @@ pub fn assert_flags(cpu: &CPU, enabled_flags: Vec<Flags>) {
     }
 }
 
+#[allow(dead_code)]
+pub fn push_to_stack(cpu: &mut CPU, data: u8) {
+    let stack_addr = (0x0100 as u16) + (cpu.stack_pointer as u16);
+    cpu.memory.write(stack_addr, data);
+    cpu.stack_pointer -= 1;
+}
+
 fn get_flag_name(f: Flags) -> &'static str {
     match f {
         Flags::Init => "Init",

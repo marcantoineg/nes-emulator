@@ -178,6 +178,7 @@ impl CPU {
                 PHA => self.pha(),
                 PHP => self.php(),
                 PLA => self.pla(),
+                PLP => self.plp(),
                 TAX => self.tax(),
                 TAY => self.tay(),
 
@@ -445,6 +446,16 @@ impl CPU {
         self.set_register_a(v);
     }
 
+    fn plp(&mut self) {
+        let flag = Flags::from_bits(self.pop_stack());
+        match flag {
+            Some(f) => {
+                self.status = f;
+            }
+            _ => {}
+        }
+    }
+
     fn set_register_a(&mut self, value: u8) {
         self.register_a = value;
         self.set_zero_flag(self.register_a);
@@ -562,7 +573,6 @@ impl CPU {
         return value;
     }
 
-    #[allow(dead_code)] //todo: remove when used by operations
     fn stack_pointer_u16(&self) -> u16 {
         return 0x0100 + self.stack_pointer as u16;
     }
