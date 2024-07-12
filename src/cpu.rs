@@ -179,6 +179,7 @@ impl CPU {
                 PHP => self.php(),
                 PLA => self.pla(),
                 PLP => self.plp(),
+                ROL => self.rol(&op.addressing_mode),
                 TAX => self.tax(),
                 TAY => self.tay(),
 
@@ -454,6 +455,45 @@ impl CPU {
             }
             _ => {}
         }
+    }
+
+    fn rol(&mut self, mode: &AddressingMode) {
+        if *mode == AddressingMode::Implied {
+            self.rol_acc();
+        } else {
+            self.rol_mem(mode);
+        }
+    }
+
+    fn rol_acc(&mut self) {
+        let carry_in = self.carry_flag();
+        let mut value = self.register_a;
+        let carry_out = value & 0b1000_0000 != 0;
+
+        value = value << 1;
+        if carry_in {
+            value += 1;
+        }
+
+        self.set_register_a(value);
+
+        self.set_carry_flag(carry_out);
+    }
+
+    fn rol_mem(&mut self, mode: &AddressingMode) {
+        let carry_in = self.carry_flag();
+        let addr = self.get_op_target_addr(mode);
+        let mut value = self.memory.read(addr);
+        let carry_out = value & 0b1000_0000 != 0;
+
+        value = value << 1;
+        if carry_in {
+            value += 1;
+        }
+
+        self.set_memory(addr, value);
+
+        self.set_carry_flag(carry_out);
     }
 
     fn set_register_a(&mut self, value: u8) {
