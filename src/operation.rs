@@ -150,6 +150,12 @@ lazy_static! {
         m.insert(0x2E, Operation::new(ROL, Absolute, 3));
         m.insert(0x3E, Operation::new(ROL, AbsoluteX, 3));
 
+        m.insert(0x6A, Operation::new(ROR, Implied, 1));
+        m.insert(0x66, Operation::new(ROR, ZeroPage, 2));
+        m.insert(0x76, Operation::new(ROR, ZeroPageX, 2));
+        m.insert(0x6E, Operation::new(ROR, Absolute, 3));
+        m.insert(0x7E, Operation::new(ROR, AbsoluteX, 3));
+
         m.insert(0xAA, Operation::new(TAX, Implied, 1));
         m.insert(0xA8, Operation::new(TAY, Implied, 1));
         m

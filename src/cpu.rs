@@ -180,6 +180,7 @@ impl CPU {
                 PLA => self.pla(),
                 PLP => self.plp(),
                 ROL => self.rol(&op.addressing_mode),
+                ROR => self.ror(&op.addressing_mode),
                 TAX => self.tax(),
                 TAY => self.tay(),
 
@@ -476,7 +477,6 @@ impl CPU {
         }
 
         self.set_register_a(value);
-
         self.set_carry_flag(carry_out);
     }
 
@@ -492,7 +492,43 @@ impl CPU {
         }
 
         self.set_memory(addr, value);
+        self.set_carry_flag(carry_out);
+    }
 
+    fn ror(&mut self, mode: &AddressingMode) {
+        if *mode == AddressingMode::Implied {
+            self.ror_acc();
+        } else {
+            self.ror_mem(mode);
+        }
+    }
+
+    fn ror_acc(&mut self) {
+        let carry_in = self.carry_flag();
+        let mut value = self.register_a;
+        let carry_out = value & 0b0000_0001 != 0;
+
+        value = value >> 1;
+        if carry_in {
+            value = value | 0b1000_0000;
+        }
+
+        self.set_register_a(value);
+        self.set_carry_flag(carry_out);
+    }
+
+    fn ror_mem(&mut self, mode: &AddressingMode) {
+        let carry_in = self.carry_flag();
+        let addr = self.get_op_target_addr(mode);
+        let mut value = self.memory.read(addr);
+        let carry_out = value & 0b0000_0001 != 0;
+
+        value = value >> 1;
+        if carry_in {
+            value = value | 0b1000_0000;
+        }
+
+        self.set_memory(addr, value);
         self.set_carry_flag(carry_out);
     }
 
