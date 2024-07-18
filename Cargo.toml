@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 bitflags = "2.5.0"
 lazy_static = "1.4.0"
+
+[lib]
+doctest = false
