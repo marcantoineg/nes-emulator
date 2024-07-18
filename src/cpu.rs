@@ -39,6 +39,13 @@ bitflags! {
     }
 }
 
+impl Flags {
+    fn from_u8(status_bits: u8) -> Self {
+        return Flags::from_bits(status_bits)
+            .unwrap_or_else(|| panic!("unable to parse cpu status: {:#010b}", status_bits));
+    }
+}
+
 impl CPU {
     pub fn new() -> Self {
         CPU {
@@ -152,7 +159,7 @@ impl CPU {
                 BVC => self.bvc(),
                 BVS => self.bvs(),
                 BIT => self.bit(&op.addressing_mode),
-                BRK => return,
+                BRK => return, // todo: actually implement this
                 CLC => self.set_carry_flag(false),
                 CLD => self.set_decimal_flag(false),
                 CLI => self.set_interupt_flag(false),
@@ -181,6 +188,7 @@ impl CPU {
                 PLP => self.plp(),
                 ROL => self.rol(&op.addressing_mode),
                 ROR => self.ror(&op.addressing_mode),
+                RTI => self.rti(),
                 TAX => self.tax(),
                 TAY => self.tay(),
 
@@ -449,13 +457,7 @@ impl CPU {
     }
 
     fn plp(&mut self) {
-        let flag = Flags::from_bits(self.pop_stack());
-        match flag {
-            Some(f) => {
-                self.status = f;
-            }
-            _ => {}
-        }
+        self.status = Flags::from_u8(self.pop_stack());
     }
 
     fn rol(&mut self, mode: &AddressingMode) {
@@ -530,6 +532,11 @@ impl CPU {
 
         self.set_memory(addr, value);
         self.set_carry_flag(carry_out);
+    }
+
+    fn rti(&mut self) {
+        self.status = Flags::from_u8(self.pop_stack());
+        self.program_counter = self.pop_u16_from_stack();
     }
 
     fn set_register_a(&mut self, value: u8) {
@@ -633,8 +640,7 @@ impl CPU {
         self.stack_pointer -= 1;
     }
 
-    #[allow(dead_code)] //todo: remove when used by operations
-    fn pop_u16_stack(&mut self) -> u16 {
+    fn pop_u16_from_stack(&mut self) -> u16 {
         let lo = self.pop_stack() as u16;
         let hi = self.pop_stack() as u16;
 
@@ -690,7 +696,7 @@ mod tests {
         assert_eq!(cpu.memory.read(0x01FD), 0x11);
         assert_eq!(cpu.stack_pointer, 0xFC);
 
-        cpu.pop_u16_stack();
+        cpu.pop_u16_from_stack();
         assert_eq!(cpu.memory.read(0x01FE), 0x00);
         assert_eq!(cpu.memory.read(0x01FD), 0x00);
         assert_eq!(cpu.stack_pointer, 0xFE);

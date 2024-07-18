@@ -18,7 +18,7 @@ impl Memory {
     }
 
     pub fn load_program(&mut self, data: Vec<u8>) {
-        self.memory[0x8000..0x8000 + data.len()].copy_from_slice(&data[..]);
+        self.memory[0x8000..(0x8000 + data.len())].copy_from_slice(&data[..]);
     }
 
     pub fn read_u16(&mut self, addr: u16) -> u16 {
