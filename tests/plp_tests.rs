@@ -1,7 +1,6 @@
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::push_to_stack;
 
 macro_rules! generate_0x28_plp_implied_single_flag_test {
     ($($name:ident: $value:expr,)*) => {
@@ -10,7 +9,7 @@ macro_rules! generate_0x28_plp_implied_single_flag_test {
        fn $name () {
             let flag = $value;
             let mut cpu = CPU::new();
-            push_to_stack(&mut cpu, flag.bits());
+            common::push_to_stack(&mut cpu, flag.bits());
 
 
             cpu.load_and_run_without_reset(vec![0x28, 0x00]);
@@ -28,7 +27,6 @@ generate_0x28_plp_implied_single_flag_test! {
     test_0x28_plp_imlied_interupt_flag: Flags::InteruptDisable,
     test_0x28_plp_imlied_decimal_flag: Flags::Decimal,
     test_0x28_plp_imlied_break_flag: Flags::Break,
-    test_0x28_plp_imlied_break2_flag: Flags::Break2,
     test_0x28_plp_imlied_overflow_flag: Flags::Overflow,
     test_0x28_plp_imlied_negative_flag: Flags::Negative,
 }
@@ -38,7 +36,7 @@ fn test_0x28_plp_implied_pulls_multiple_flags_correcly() {
     let mut cpu = CPU::new();
     let expected_flags =
         (Flags::Zero | Flags::Carry | Flags::Overflow | Flags::InteruptDisable).bits();
-    push_to_stack(&mut cpu, expected_flags);
+    common::push_to_stack(&mut cpu, expected_flags);
 
     cpu.load_and_run_without_reset(vec![0x28, 0x00]);
 

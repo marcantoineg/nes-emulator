@@ -27,13 +27,12 @@ bitflags! {
     ///  +----------------- Negative Flag
     #[derive(PartialEq, Eq, Clone, Copy)]
     pub struct Flags: u8 {
-        const Init = 0b0011_0000;
         const Carry = 0b0000_0001;
         const Zero = 0b0000_0010;
         const InteruptDisable = 0b0000_0100;
         const Decimal = 0b0000_1000;
         const Break = 0b0001_0000;
-        const Break2 = 0b0010_0000;
+        const Unused = 0b0010_0000;
         const Overflow = 0b0100_0000;
         const Negative = 0b1000_0000;
     }
@@ -52,7 +51,7 @@ impl CPU {
             register_a: 0,
             register_x: 0,
             register_y: 0,
-            status: Flags::Init,
+            status: Flags::from_u8(0b0010_0100),
             program_counter: 0,
             stack_pointer: 0xFF,
             memory: Memory::new(),
@@ -82,7 +81,7 @@ impl CPU {
             self.register_a = 0;
             self.register_x = 0;
             self.register_y = 0;
-            self.status = Flags::Init;
+            self.status = Flags::Unused;
         }
 
         self.program_counter = self.memory.read_u16(0xFFFC);
@@ -663,6 +662,31 @@ impl CPU {
 #[cfg(test)]
 mod tests {
     use super::CPU;
+    use super::Flags;
+
+    #[test]
+    fn test_load_and_run_reset_registeries() {
+        let mut cpu = CPU::new();
+        cpu.register_a = 1;
+        cpu.register_x = 2;
+        cpu.register_y = 3;
+        cpu.status = Flags::all();
+
+        cpu.load_and_run(vec![0x00]);
+
+        assert_eq!(cpu.register_a, 0);
+        assert_eq!(cpu.register_x, 0);
+        assert_eq!(cpu.register_y, 0);
+        assert_eq!(cpu.status.bits(), 0b0010_0000);
+    }
+
+    #[test]
+    fn test_5_ops_working_together() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run_without_reset(vec![0xa9, 0xc0, 0xaa, 0xe8, 0x00]);
+
+        assert_eq!(cpu.register_x, 0xc1)
+    }
 
     #[test]
     fn test_stack_pushes_and_pops_correctly() {

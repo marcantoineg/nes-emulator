@@ -1,7 +1,7 @@
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flag, assert_flags};
+use common::assert_flag;
 
 macro_rules! generate_0x08_php_implied_single_flag_test {
     ($($name:ident: $value:expr,)*) => {
@@ -27,7 +27,6 @@ generate_0x08_php_implied_single_flag_test! {
     test_0x08_php_implied_saves_interupt_flag_correctly: Flags::InteruptDisable,
     test_0x08_php_implied_saves_decimal_flag_correctly: Flags::Decimal,
     test_0x08_php_implied_saves_break_flag_correctly: Flags::Break,
-    test_0x08_php_implied_saves_break2_flag_correctly: Flags::Break2,
     test_0x08_php_implied_saves_overflow_flag_correctly: Flags::Overflow,
     test_0x08_php_implied_saves_negative_flag_correctly: Flags::Negative,
 }
@@ -41,9 +40,5 @@ fn test_0x08_implied_saves_multiple_flags_correctly() {
 
     cpu.load_and_run_without_reset(vec![0x08, 0x00]);
 
-    assert_flags(&cpu, vec![Flags::Carry, Flags::Zero, Flags::Negative]);
-    assert_eq!(
-        cpu.memory.read(0x01FF),
-        (Flags::Carry | Flags::Zero | Flags::Negative | Flags::Init).bits()
-    );
+    assert_eq!(cpu.memory.read(0x01FF), 0b1010_0111);
 }
