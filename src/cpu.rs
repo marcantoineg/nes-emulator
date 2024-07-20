@@ -661,8 +661,8 @@ impl CPU {
 
 #[cfg(test)]
 mod tests {
-    use super::CPU;
     use super::Flags;
+    use super::CPU;
 
     #[test]
     fn test_load_and_run_reset_registeries() {
