@@ -12,7 +12,7 @@ mod cpx_immediate {
         let mut cpu = CPU::new();
         cpu.register_x = 0x01;
 
-        cpu.load_and_run_without_reset(vec![0xE0, 0x05, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xE0, 0x05], 1);
         assert_eq!(cpu.register_x, 0x01);
         assert_flags(&cpu, vec![Flags::Negative]);
     }
@@ -22,7 +22,7 @@ mod cpx_immediate {
         let mut cpu = CPU::new();
         cpu.register_x = 0x26;
 
-        cpu.load_and_run_without_reset(vec![0xE0, 0x26, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xE0, 0x26], 1);
         assert_eq!(cpu.register_x, 0x26);
         assert_flags(&cpu, vec![Flags::Carry, Flags::Zero]);
     }
@@ -32,7 +32,7 @@ mod cpx_immediate {
         let mut cpu = CPU::new();
         cpu.register_x = 0x05;
 
-        cpu.load_and_run_without_reset(vec![0xE0, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xE0, 0x01], 1);
         assert_eq!(cpu.register_x, 0x05);
         assert_flags(&cpu, vec![Flags::Carry]);
     }
@@ -47,7 +47,7 @@ mod cpx_zero_page {
         cpu.register_x = 0x01;
         cpu.memory.write(0x01, 0x05);
 
-        cpu.load_and_run_without_reset(vec![0xE4, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xE4, 0x01], 1);
 
         assert_eq!(cpu.register_x, 0x01);
         assert_eq!(cpu.memory.read(0x01), 0x05);
@@ -60,7 +60,7 @@ mod cpx_zero_page {
         cpu.register_x = 0x26;
         cpu.memory.write(0x01, 0x26);
 
-        cpu.load_and_run_without_reset(vec![0xE4, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xE4, 0x01], 1);
 
         assert_eq!(cpu.register_x, 0x26);
         assert_eq!(cpu.memory.read(0x01), 0x26);
@@ -73,7 +73,7 @@ mod cpx_zero_page {
         cpu.register_x = 0x05;
         cpu.memory.write(0x01, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xE4, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xE4, 0x01], 1);
 
         assert_eq!(cpu.register_x, 0x05);
         assert_eq!(cpu.memory.read(0x01), 0x01);
@@ -90,7 +90,7 @@ mod cpx_absolute {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1010, 0x05);
 
-        cpu.load_and_run_without_reset(vec![0xEC, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xEC, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_x, 0x01);
         assert_eq!(cpu.memory.read(0x1010), 0x05);
@@ -103,7 +103,7 @@ mod cpx_absolute {
         cpu.register_x = 0x26;
         cpu.memory.write(0x1010, 0x26);
 
-        cpu.load_and_run_without_reset(vec![0xEC, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xEC, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_x, 0x26);
         assert_eq!(cpu.memory.read(0x1010), 0x26);
@@ -116,7 +116,7 @@ mod cpx_absolute {
         cpu.register_x = 0x05;
         cpu.memory.write(0x1010, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xEC, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xEC, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_x, 0x05);
         assert_eq!(cpu.memory.read(0x1010), 0x01);

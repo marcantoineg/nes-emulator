@@ -6,18 +6,13 @@ use std::vec;
 /// managed by CPU initialization and interrupt handling.
 #[allow(dead_code)]
 pub fn only_break_flag_set(cpu: &CPU) {
-    assert_flags(cpu, vec![]);
+    assert_no_flags(cpu);
 }
 
-/// Asserts that the given flags are set. Since all tests end with BRK (0x00),
-/// the Break flag is automatically included in the expected flags.
+/// Asserts that the given flags are set.
 /// Note: InteruptDisable and Unused flags are always ignored in assertions.
 pub fn assert_flags(cpu: &CPU, enabled_flags: Vec<Flags>) {
-    let mut all_flags = enabled_flags;
-    if !all_flags.contains(&Flags::Break) {
-        all_flags.push(Flags::Break);
-    }
-    check_flags(cpu, all_flags, true);
+    check_flags(cpu, enabled_flags);
 }
 
 /// Asserts that the given flags are set (without Break flag).
@@ -25,27 +20,26 @@ pub fn assert_flags(cpu: &CPU, enabled_flags: Vec<Flags>) {
 /// Note: InteruptDisable and Unused flags are always ignored in assertions.
 #[allow(dead_code)]
 pub fn assert_flags_without_break(cpu: &CPU, enabled_flags: Vec<Flags>) {
-    check_flags(cpu, enabled_flags, false);
+    check_flags(cpu, enabled_flags);
 }
 
 /// Asserts that a single flag is set.
-/// Automatically includes the Break flag since all tests end with BRK (0x00).
 pub fn assert_flag(cpu: &CPU, flag: Flags) {
     assert_flags(cpu, vec![flag]);
 }
 
-/// Asserts that no flags are set (only Break flag, which is automatically added).
+/// Asserts that no flags are set.
 pub fn assert_no_flags(cpu: &CPU) {
     assert_flags(cpu, vec![]);
 }
 
 /// Internal function to check flag state against expected flags.
 /// Ignores InteruptDisable and Unused flags as they are managed by CPU initialization.
-fn check_flags(cpu: &CPU, enabled_flags: Vec<Flags>, _expect_break: bool) {
+fn check_flags(cpu: &CPU, enabled_flags: Vec<Flags>) {
     for f in Flags::all() {
         // These flags are always managed by CPU initialization and interrupts,
         // so they're not tested by operation-specific tests
-        if (f == Flags::InteruptDisable) | (f == Flags::Unused) {
+        if (f == Flags::InteruptDisable) || (f == Flags::Unused) {
             continue;
         }
 

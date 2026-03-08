@@ -17,9 +17,9 @@ fn test_0x18_clc_implied_clears_flag_correctly() {
     let mut cpu = CPU::new();
     cpu.status.insert(Flags::Carry);
 
-    cpu.load_and_run_without_reset(vec![0x18, 0x00]);
+    cpu.load_and_run_n_without_reset(vec![0x18], 1);
 
-    assert_eq!(cpu.status.bits(), 0b0011_0100);
+    assert_eq!(cpu.status.bits(), 0b0010_0100);
     only_break_flag_set(&cpu)
 }
 
@@ -49,9 +49,9 @@ fn test_0x58_cli_implied_clears_flag_correctly() {
     let mut cpu = CPU::new();
     cpu.status.insert(Flags::InteruptDisable);
 
-    cpu.load_and_run_without_reset(vec![0x58, 0x00]);
+    cpu.load_and_run_n_without_reset(vec![0x58], 1);
 
-    assert_eq!(cpu.status.bits(), 0b0011_0100);
+    assert_eq!(cpu.status.bits(), 0b0010_0000);
     only_break_flag_set(&cpu)
 }
 
@@ -71,9 +71,9 @@ fn test_0xd8_cld_implied_clears_flag_correctly() {
     let mut cpu = CPU::new();
     cpu.status.insert(Flags::Decimal);
 
-    cpu.load_and_run_without_reset(vec![0xD8, 0x00]);
+    cpu.load_and_run_n_without_reset(vec![0xD8], 1);
 
-    assert_eq!(cpu.status.bits(), 0b0011_0100);
+    assert_eq!(cpu.status.bits(), 0b0010_0100);
     only_break_flag_set(&cpu)
 }
 
@@ -102,9 +102,9 @@ fn test_0xb8_clv_implied_clears_flag_correctly() {
     let mut cpu = CPU::new();
     cpu.status.insert(Flags::Overflow);
 
-    cpu.load_and_run_without_reset(vec![0xB8, 0x00]);
+    cpu.load_and_run_n_without_reset(vec![0xB8], 1);
 
-    assert_eq!(cpu.status.bits(), 0b0011_0100);
+    assert_eq!(cpu.status.bits(), 0b0010_0100);
     only_break_flag_set(&cpu)
 }
 

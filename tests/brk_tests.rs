@@ -7,7 +7,7 @@ fn test_0x00_brk_implied_pushes_pc_and_status_to_stack() {
     let mut cpu = CPU::new();
     let initial_sp = cpu.stack_pointer;
 
-    cpu.load_and_run_without_reset(vec![0x00, 0xEA]);
+    cpu.load_and_run_n_without_reset(vec![0x00], 1);
 
     // The stack should have 0x8002:
     assert_eq!(cpu.memory.read(0x01FF), 0x80); // high byte
@@ -25,7 +25,7 @@ fn test_0x00_brk_implied_pushes_pc_and_status_to_stack() {
 fn test_0x00_brk_sets_break_flag() {
     let mut cpu = CPU::new();
 
-    cpu.load_and_run_without_reset(vec![0x00, 0xEA]);
+    cpu.load_and_run_n_without_reset(vec![0x00], 1);
 
     assert!(cpu.status.contains(Flags::Break));
 }
@@ -34,7 +34,7 @@ fn test_0x00_brk_sets_break_flag() {
 fn test_0x00_brk_sets_interrupt_disable_flag() {
     let mut cpu = CPU::new();
 
-    cpu.load_and_run_without_reset(vec![0x00, 0xEA]);
+    cpu.load_and_run_n_without_reset(vec![0x00], 1);
 
     assert!(cpu.status.contains(Flags::InteruptDisable));
 }
@@ -48,7 +48,7 @@ fn test_0x00_brk_preserves_other_flags() {
     cpu.status.insert(Flags::Zero);
     cpu.status.insert(Flags::Negative);
 
-    cpu.load_and_run_without_reset(vec![0x00, 0xEA]);
+    cpu.load_and_run_n_without_reset(vec![0x00], 1);
 
     // All flags should still be set
     assert!(cpu.status.contains(Flags::Carry));
@@ -66,7 +66,7 @@ fn test_0x00_brk_pushed_status_contains_break_and_interrupt_flags() {
     cpu.status.insert(Flags::Carry);
     cpu.status.insert(Flags::Zero);
 
-    cpu.load_and_run_without_reset(vec![0x00, 0xEA]);
+    cpu.load_and_run_n_without_reset(vec![0x00], 1);
 
     // Get the pushed status
     let pushed_status = cpu.memory.read(0x01FD);
@@ -88,7 +88,7 @@ fn test_0x00_brk_stack_operations_correct_order() {
     // Get initial SP before any pushes
     let initial_sp = cpu.stack_pointer;
 
-    cpu.load_and_run_without_reset(vec![0x00, 0xEA]);
+    cpu.load_and_run_n_without_reset(vec![0x00], 1);
 
     // BRK pushes: 2 bytes for PC + 1 byte for status = 3 bytes
     // So final SP should be initial_sp - 3
@@ -119,7 +119,7 @@ fn test_0x00_brk_stops_cpu_execution() {
         0xEA, // NOP at 0x8003 (should not be executed)
     ];
 
-    cpu.load_and_run_without_reset(program);
+    cpu.load_and_run_n_without_reset(program, 1);
 
     // After BRK, PC should be at 0x8001 (incremented before BRK executes)
     // Then BRK returns, stopping the CPU
@@ -139,7 +139,7 @@ fn test_0x00_brk_with_prior_flags_all_preserved() {
     cpu.status.insert(Flags::Overflow);
     cpu.status.insert(Flags::Negative);
 
-    cpu.load_and_run_without_reset(vec![0x00, 0xEA]);
+    cpu.load_and_run_n_without_reset(vec![0x00], 1);
 
     // Check that all originally set flags are still set
     assert!(cpu.status.contains(Flags::Carry));
