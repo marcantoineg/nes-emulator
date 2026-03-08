@@ -6,6 +6,27 @@ _⚠️ this is a Work In Progress_
 
 A (somewhat) simple emulator of the [Nintendo Entertainment System](https://en.wikipedia.org/wiki/Nintendo_Entertainment_System) in [Rust](https://www.rust-lang.org/)
 
+## Development & Testing
+
+### Running Tests
+To run all tests:
+```bash
+cargo test
+```
+
+To run tests for a specific operation (e.g., LDA):
+```bash
+cargo test lda
+```
+
+To run tests with output:
+```bash
+cargo test -- --nocapture
+```
+
+Test files are located in the `tests/` directory and are organized by operation (e.g., `lda_tests.rs`, `adc_tests.rs`, etc.).
+
+## Resources
 - [NES emulator tutorial](https://bugzmanov.github.io/nes_ebook/)
 
 **References:**
