@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use common::{assert_flags, assert_no_flags};
+use common::assert_flags;
 
 #[test]
 fn test_0xd0_bne_relative_branches_forward_correctly() {
@@ -13,7 +13,7 @@ fn test_0xd0_bne_relative_branches_forward_correctly() {
     ]);
 
     assert_eq!(cpu.register_a, 0x00);
-    assert_no_flags(&cpu);
+    assert_flags(&cpu, vec![]);
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn test_0xd0_bne_relative_ignores_branching_when_offset_is_zero() {
     ]);
 
     assert_eq!(cpu.register_a, 0x01);
-    assert_no_flags(&cpu);
+    assert_flags(&cpu, vec![]);
 }
 
 #[test]

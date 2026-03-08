@@ -3,7 +3,7 @@ use std::vec;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flag, assert_no_flags};
+use common::{assert_flags, only_break_flag_set};
 
 #[test]
 fn test_0xaa_tax_implied_copy_data() {
@@ -14,7 +14,7 @@ fn test_0xaa_tax_implied_copy_data() {
 
     assert_eq!(cpu.register_a, 0x01);
     assert_eq!(cpu.register_x, 0x01);
-    assert_no_flags(&cpu);
+    only_break_flag_set(&cpu);
 }
 
 #[test]
@@ -26,7 +26,7 @@ fn test_0xaa_tax_zero_flag() {
 
     assert_eq!(cpu.register_a, 0x00);
     assert_eq!(cpu.register_x, 0x00);
-    assert_flag(&cpu, Flags::Zero);
+    assert_flags(&cpu, vec![Flags::Zero]);
 }
 
 #[test]
@@ -38,5 +38,5 @@ fn test_0xaa_tax_negative_flag() {
 
     assert_eq!(cpu.register_a, 0b1000_0000);
     assert_eq!(cpu.register_x, 0b1000_0000);
-    assert_flag(&cpu, Flags::Negative);
+    assert_flags(&cpu, vec![Flags::Negative]);
 }

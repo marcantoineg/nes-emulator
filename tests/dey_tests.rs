@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use crate::common::{assert_flag, assert_no_flags};
+use crate::common::{assert_flags, only_break_flag_set};
 
 #[test]
 fn test_0x88_dey_implied_decrement_register_y_correcly() {
@@ -12,7 +12,7 @@ fn test_0x88_dey_implied_decrement_register_y_correcly() {
     cpu.load_and_run_without_reset(vec![0x88, 0x00]);
 
     assert_eq!(cpu.register_y, 0x01);
-    assert_no_flags(&cpu);
+    assert_flags(&cpu, vec![]);
 }
 
 #[test]
@@ -23,7 +23,7 @@ fn test_0x88_dey_implied_sets_zero_flag_correctly() {
     cpu.load_and_run_without_reset(vec![0x88, 0x00]);
 
     assert_eq!(cpu.register_y, 0x00);
-    assert_flag(&cpu, Flags::Zero);
+    assert_flags(&cpu, vec![Flags::Zero]);
 }
 
 #[test]
@@ -34,5 +34,5 @@ fn test_0x88_dey_implied_sets_negative_flag_and_wraps_correctly() {
     cpu.load_and_run_without_reset(vec![0x88, 0x00]);
 
     assert_eq!(cpu.register_y, 0xFF);
-    assert_flag(&cpu, Flags::Negative);
+    assert_flags(&cpu, vec![Flags::Negative]);
 }

@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use crate::common::{assert_flag, assert_flags};
+use crate::common::{assert_flags, assert_flag};
 
 mod cmp_immediate {
     use super::*;
@@ -14,7 +14,7 @@ mod cmp_immediate {
 
         cpu.load_and_run_without_reset(vec![0xC9, 0x05, 0x00]);
         assert_eq!(cpu.register_a, 0x01);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 
     #[test]
@@ -34,7 +34,7 @@ mod cmp_immediate {
 
         cpu.load_and_run_without_reset(vec![0xC9, 0x01, 0x00]);
         assert_eq!(cpu.register_a, 0x05);
-        assert_flag(&cpu, Flags::Carry);
+        assert_flags(&cpu, vec![Flags::Carry]);
     }
 }
 
@@ -51,7 +51,7 @@ mod cmp_zero_page {
 
         assert_eq!(cpu.register_a, 0x01);
         assert_eq!(cpu.memory.read(0x01), 0x05);
-        assert_flag(&cpu, Flags::Negative)
+        assert_flags(&cpu, vec![Flags::Negative])
     }
 
     #[test]
@@ -76,7 +76,7 @@ mod cmp_zero_page {
         cpu.load_and_run_without_reset(vec![0xC5, 0x01, 0x00]);
         assert_eq!(cpu.register_a, 0x05);
         assert_eq!(cpu.memory.read(0x01), 0x01);
-        assert_flag(&cpu, Flags::Carry);
+        assert_flags(&cpu, vec![Flags::Carry]);
     }
 }
 
@@ -94,7 +94,7 @@ mod cmp_zero_page_x {
 
         assert_eq!(cpu.register_a, 0x01);
         assert_eq!(cpu.memory.read(0x02), 0x05);
-        assert_flag(&cpu, Flags::Negative)
+        assert_flags(&cpu, vec![Flags::Negative])
     }
 
     #[test]
@@ -121,7 +121,7 @@ mod cmp_zero_page_x {
         cpu.load_and_run_without_reset(vec![0xD5, 0x01, 0x00]);
         assert_eq!(cpu.register_a, 0x05);
         assert_eq!(cpu.memory.read(0x02), 0x01);
-        assert_flag(&cpu, Flags::Carry);
+        assert_flags(&cpu, vec![Flags::Carry]);
     }
 }
 

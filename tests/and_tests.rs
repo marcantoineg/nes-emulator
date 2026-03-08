@@ -1,7 +1,7 @@
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flag, assert_flags, assert_no_flags};
+use common::{assert_flags, assert_flag, assert_no_flags, only_break_flag_set};
 
 #[test]
 fn test_0x29_and_immediate_calculates_correctly() {
@@ -11,7 +11,7 @@ fn test_0x29_and_immediate_calculates_correctly() {
     cpu.load_and_run_without_reset(vec![0x29, 0b0111_0000, 0x00]);
 
     assert_eq!(cpu.register_a, 0b0111_0000);
-    assert_no_flags(&cpu);
+    only_break_flag_set(&cpu);
 }
 
 #[test]
@@ -22,7 +22,7 @@ fn test_0x29_and_immediate_zero_flag() {
     cpu.load_and_run_without_reset(vec![0x29, 0b0000_0000, 0x00]);
 
     assert_eq!(cpu.register_a, 0);
-    assert_flag(&cpu, Flags::Zero);
+    assert_flags(&cpu, vec![Flags::Zero]);
 }
 
 #[test]
@@ -33,7 +33,7 @@ fn test_0x29_and_immediate_negative_flag() {
     cpu.load_and_run_without_reset(vec![0x29, 0b1000_0000, 0x00]);
 
     assert_eq!(cpu.register_a, 0b1000_0000);
-    assert_flag(&cpu, Flags::Negative);
+    assert_flags(&cpu, vec![Flags::Negative]);
 }
 
 #[test]
@@ -45,7 +45,7 @@ fn test_0x25_and_zero_page_calculates_correctly() {
     cpu.load_and_run_without_reset(vec![0x25, 0x24, 0x00]);
 
     assert_eq!(cpu.register_a, 0b0111_0000);
-    assert_no_flags(&cpu);
+    only_break_flag_set(&cpu);
 }
 
 #[test]
@@ -57,7 +57,7 @@ fn test_0x25_and_zero_page_zero_flag() {
     cpu.load_and_run_without_reset(vec![0x25, 0x24, 0x00]);
 
     assert_eq!(cpu.register_a, 0b0000_0000);
-    assert_flag(&cpu, Flags::Zero);
+    assert_flags(&cpu, vec![Flags::Zero]);
 }
 
 #[test]

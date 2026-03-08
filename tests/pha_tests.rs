@@ -1,7 +1,7 @@
 use nes_emulator::cpu::CPU;
 
 mod common;
-use common::assert_no_flags;
+use common::only_break_flag_set;
 
 #[test]
 fn test_0x48_pha_implied_pushed_to_stack_correctly() {
@@ -10,7 +10,8 @@ fn test_0x48_pha_implied_pushed_to_stack_correctly() {
 
     cpu.load_and_run_without_reset(vec![0x48, 0x00]);
 
-    assert_eq!(cpu.stack_pointer, 0xFE);
+    // BRK pushes return address (2 bytes) + status (1 byte) + PHA (1 byte) = 4 bytes (0xFF -> 0xFB)
+    assert_eq!(cpu.stack_pointer, 0xFB);
     assert_eq!(cpu.memory.read(0x01FF), 0x80);
-    assert_no_flags(&cpu);
+    only_break_flag_set(&cpu);
 }

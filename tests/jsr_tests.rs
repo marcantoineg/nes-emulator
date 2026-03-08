@@ -1,7 +1,7 @@
 use nes_emulator::cpu::CPU;
 
 mod common;
-use crate::common::assert_no_flags;
+use crate::common::only_break_flag_set;
 
 #[test]
 fn test_0x20_jsr_absolute_jumps_to_subroutine_correctly() {
@@ -18,5 +18,5 @@ fn test_0x20_jsr_absolute_jumps_to_subroutine_correctly() {
     assert_eq!(cpu.memory.read(0x01FF), 0x80);
 
     assert_eq!(cpu.program_counter, 0x8008);
-    assert_no_flags(&cpu);
+    only_break_flag_set(&cpu);
 }

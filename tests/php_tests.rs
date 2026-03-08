@@ -7,15 +7,17 @@ macro_rules! generate_0x08_php_implied_single_flag_test {
     ($($name:ident: $value:expr,)*) => {
     $(
         #[test]
-       fn $name () {
+        fn $name () {
             let flag = $value;
             let mut cpu = CPU::new();
+            cpu.status = Flags::None;
+
             cpu.status.insert(flag);
 
             cpu.load_and_run_without_reset(vec![0x08, 0x00]);
 
             assert_flag(&cpu, flag);
-            assert_eq!(cpu.memory.read(0x01FF), cpu.status.bits());
+            assert_eq!(cpu.memory.read(0x01FF), flag.bits());
         }
     )*
     }

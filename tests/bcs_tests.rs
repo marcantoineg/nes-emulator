@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use common::{assert_flag, assert_flags, assert_no_flags};
+use common::{assert_flags, only_break_flag_set};
 
 #[test]
 fn test_0xb0_bcs_relative_branches_forward_correctly() {
@@ -14,7 +14,7 @@ fn test_0xb0_bcs_relative_branches_forward_correctly() {
     ]);
 
     assert_eq!(cpu.register_a, 0x00);
-    assert_flag(&cpu, Flags::Carry);
+    assert_flags(&cpu, vec![Flags::Carry]);
 }
 
 #[test]
@@ -26,7 +26,7 @@ fn test_0xb0_bcs_relative_branches_backward_correctly() {
     ]);
 
     assert_eq!(cpu.register_a, 0x02); // 0x02 here because of adc+1 with carry (so +2)
-    assert_no_flags(&cpu);
+    only_break_flag_set(&cpu);
 }
 
 #[test]
@@ -50,5 +50,5 @@ fn test_0xb0_bcs_relative_ignores_branching_when_condition_is_not_met() {
     ]);
 
     assert_eq!(cpu.register_a, 0x02);
-    assert_no_flags(&cpu);
+    assert_flags(&cpu, vec![]);
 }

@@ -3,7 +3,7 @@ use std::vec;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flag, assert_flags, assert_no_flags};
+use common::{assert_flags, only_break_flag_set};
 
 #[test]
 fn test_0xe8_inx_implied_increment_x() {
@@ -13,7 +13,7 @@ fn test_0xe8_inx_implied_increment_x() {
     cpu.load_and_run_without_reset(vec![0xE8, 0x00]);
 
     assert_eq!(cpu.register_x, 0x02);
-    assert_no_flags(&cpu);
+    assert_flags(&cpu, vec![]);
 }
 
 #[test]
@@ -35,7 +35,7 @@ fn test_0xe8_inx_zero_flag() {
     cpu.load_and_run_without_reset(vec![0xE8, 0x00]);
 
     assert_eq!(cpu.register_x, 0x00);
-    assert_flag(&cpu, Flags::Zero);
+    assert_flags(&cpu, vec![Flags::Zero])
 }
 
 #[test]
@@ -46,5 +46,5 @@ fn test_0xe8_inx_negative_flag() {
     cpu.load_and_run_without_reset(vec![0xE8, 0x00]);
 
     assert_eq!(cpu.register_x, 0b1000_0000);
-    assert_flag(&cpu, Flags::Negative);
+    assert_flags(&cpu, vec![Flags::Negative]);
 }

@@ -13,7 +13,7 @@ fn test_0x10_bpl_relative_branches_forward_correctly() {
     ]);
 
     assert_eq!(cpu.register_a, 0x00);
-    assert_no_flags(&cpu);
+    assert_flags(&cpu, vec![]);
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn test_0x10_bpl_relative_ignores_branching_when_offset_is_zero() {
     ]);
 
     assert_eq!(cpu.register_a, 0x02);
-    assert_no_flags(&cpu);
+    assert_flags(&cpu, vec![]);
 }
 
 #[test]
