@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use crate::common::{assert_flags, assert_flag};
+use crate::common::{assert_flag, assert_flags};
 
 mod cpy_immediate {
     use super::*;

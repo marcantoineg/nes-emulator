@@ -1,7 +1,7 @@
 use nes_emulator::cpu::CPU;
 
 mod common;
-use crate::common::{only_break_flag_set, assert_flags};
+use crate::common::{assert_flags, only_break_flag_set};
 
 #[test]
 fn test_0x4c_jmp_immediate_jumps_correctly() {

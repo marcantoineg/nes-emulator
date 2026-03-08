@@ -48,10 +48,10 @@ fn check_flags(cpu: &CPU, enabled_flags: Vec<Flags>, _expect_break: bool) {
         if (f == Flags::InteruptDisable) | (f == Flags::Unused) {
             continue;
         }
-        
+
         let is_enabled = cpu.status.contains(f);
         let should_be_enabled = enabled_flags.contains(&f);
-        
+
         assert_eq!(
             is_enabled,
             should_be_enabled,

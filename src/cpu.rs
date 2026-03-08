@@ -333,7 +333,7 @@ impl CPU {
         // However, for test purposes, we return to stop execution.
         // A complete implementation would jump to 0xFFFE and continue.
         // self.program_counter = self.memory.read_u16(0xFFFE);
-        
+
         // Return to stop CPU execution (matches test expectations)
         return;
     }
