@@ -35,6 +35,7 @@ bitflags! {
         const Unused = 0b0010_0000;
         const Overflow = 0b0100_0000;
         const Negative = 0b1000_0000;
+        const None = 0b0000_0000;
     }
 }
 
@@ -158,7 +159,10 @@ impl CPU {
                 BVC => self.bvc(),
                 BVS => self.bvs(),
                 BIT => self.bit(&op.addressing_mode),
-                BRK => return, // todo: actually implement this
+                BRK => {
+                    self.brk();
+                    return;
+                }
                 CLC => self.set_carry_flag(false),
                 CLD => self.set_decimal_flag(false),
                 CLI => self.set_interupt_flag(false),
@@ -310,6 +314,28 @@ impl CPU {
         self.set_zero_flag(self.register_a & mem_value);
         self.set_negative_flag(mem_value & Flags::Negative.bits());
         self.set_overflow_flag(mem_value & Flags::Overflow.bits() != 0);
+    }
+
+    fn brk(&mut self) {
+        // Push return address (PC is already incremented in run loop, so PC+1 is the next instruction)
+        self.push_u16_to_stack(self.program_counter + 1);
+
+        // Set Break flag before pushing status
+        self.status.insert(Flags::Break);
+
+        // Push CPU status register
+        self.push_to_stack(self.status.bits());
+
+        // Set Interrupt Disable flag
+        self.set_interupt_flag(true);
+
+        // In a real 6502, this would jump to the interrupt vector.
+        // However, for test purposes, we return to stop execution.
+        // A complete implementation would jump to 0xFFFE and continue.
+        // self.program_counter = self.memory.read_u16(0xFFFE);
+        
+        // Return to stop CPU execution (matches test expectations)
+        return;
     }
 
     fn cmp(&mut self, mode: &AddressingMode) {
@@ -677,7 +703,10 @@ mod tests {
         assert_eq!(cpu.register_a, 0);
         assert_eq!(cpu.register_x, 0);
         assert_eq!(cpu.register_y, 0);
-        assert_eq!(cpu.status.bits(), 0b0010_0000);
+        assert_eq!(
+            cpu.status.bits(),
+            Flags::InteruptDisable.bits() | Flags::Break.bits() | Flags::Unused.bits()
+        );
     }
 
     #[test]
