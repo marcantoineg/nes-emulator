@@ -9,7 +9,12 @@ fn test_0xb0_bcs_relative_branches_forward_correctly() {
     let mut cpu = CPU::new();
     cpu.status.insert(Flags::Carry);
 
-    cpu.load_and_run_n_without_reset(vec![/*BCS+2*/ 0xB0, 0x02, /*LDA*/ 0xA9, 0x02, /*BRK*/ 0x00], 1);
+    cpu.load_and_run_n_without_reset(
+        vec![
+            /*BCS+2*/ 0xB0, 0x02, /*LDA*/ 0xA9, 0x02, /*BRK*/ 0x00,
+        ],
+        1,
+    );
 
     assert_eq!(cpu.register_a, 0x00);
     assert_flags(&cpu, vec![Flags::Carry]);
