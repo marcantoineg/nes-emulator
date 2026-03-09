@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use crate::common::{assert_flags, only_break_flag_set};
+use crate::common::{assert_flags, assert_no_flags};
 
 #[test]
 fn test_0x88_dey_implied_decrement_register_y_correcly() {

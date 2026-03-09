@@ -1,14 +1,6 @@
 use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
-/// Asserts that only the Break flag is set (used for tests that don't modify other flags).
-/// Note: InteruptDisable and Unused flags are always ignored in assertions since they are
-/// managed by CPU initialization and interrupt handling.
-#[allow(dead_code)]
-pub fn only_break_flag_set(cpu: &CPU) {
-    assert_no_flags(cpu);
-}
-
 /// Asserts that the given flags are set.
 /// Note: InteruptDisable and Unused flags are always ignored in assertions.
 pub fn assert_flags(cpu: &CPU, enabled_flags: Vec<Flags>) {

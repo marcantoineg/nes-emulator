@@ -2,7 +2,6 @@ use common::assert_flags;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use crate::common::only_break_flag_set;
 
 mod ora_immediate {
     use super::*;

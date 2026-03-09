@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use common::{assert_flags, only_break_flag_set};
+use common::{assert_flags, assert_no_flags};
 
 #[test]
 fn test_0xb0_bcs_relative_branches_forward_correctly() {
@@ -32,7 +32,7 @@ fn test_0xb0_bcs_relative_branches_backward_correctly() {
     );
 
     assert_eq!(cpu.register_a, 0x02); // 0x02 here because of adc+1 with carry (so +2)
-    only_break_flag_set(&cpu);
+    assert_no_flags(&cpu);
 }
 
 #[test]

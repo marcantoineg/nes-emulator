@@ -1,7 +1,7 @@
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flag, assert_flags, assert_no_flags, only_break_flag_set};
+use common::{assert_flag, assert_flags, assert_no_flags};
 
 #[test]
 fn test_0x29_and_immediate_calculates_correctly() {
@@ -11,7 +11,7 @@ fn test_0x29_and_immediate_calculates_correctly() {
     cpu.load_and_run_n_without_reset(vec![0x29, 0b0111_0000], 1);
 
     assert_eq!(cpu.register_a, 0b0111_0000);
-    only_break_flag_set(&cpu);
+    assert_no_flags(&cpu);
 }
 
 #[test]
@@ -45,7 +45,7 @@ fn test_0x25_and_zero_page_calculates_correctly() {
     cpu.load_and_run_n_without_reset(vec![0x25, 0x24], 1);
 
     assert_eq!(cpu.register_a, 0b0111_0000);
-    only_break_flag_set(&cpu);
+    assert_no_flags(&cpu);
 }
 
 #[test]

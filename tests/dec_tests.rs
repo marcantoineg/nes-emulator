@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use crate::common::{assert_flags, only_break_flag_set};
+use crate::common::{assert_flags};
 
 mod dec_zero_page {
     use super::*;

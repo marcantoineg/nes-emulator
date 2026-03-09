@@ -2,7 +2,7 @@ use common::assert_flags;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use crate::common::only_break_flag_set;
+use crate::common::assert_no_flags;
 
 #[test]
 fn test_0x4a_lsr_implied_shifts_right_without_carry_correctly() {
@@ -12,7 +12,7 @@ fn test_0x4a_lsr_implied_shifts_right_without_carry_correctly() {
     cpu.load_and_run_n_without_reset(vec![0x4A], 1);
 
     assert_eq!(cpu.register_a, 0b0101_0101);
-    only_break_flag_set(&cpu);
+    assert_no_flags(&cpu);
 }
 
 #[test]

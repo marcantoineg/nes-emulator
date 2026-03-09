@@ -3,7 +3,7 @@ use std::vec;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flags, only_break_flag_set};
+use common::{assert_flags};
 
 #[test]
 fn test_0xc8_iny_implied_increment_x() {

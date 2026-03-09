@@ -3,7 +3,7 @@ use std::vec;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flags, only_break_flag_set};
+use common::{assert_flags, assert_no_flags};
 
 #[test]
 fn test_0xa8_tay_implied_copy_data() {
@@ -14,7 +14,7 @@ fn test_0xa8_tay_implied_copy_data() {
 
     assert_eq!(cpu.register_a, 0x01);
     assert_eq!(cpu.register_y, 0x01);
-    only_break_flag_set(&cpu);
+    assert_no_flags(&cpu);
 }
 
 #[test]

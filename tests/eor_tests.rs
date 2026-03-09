@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use crate::common::{assert_flags, only_break_flag_set};
+use crate::common::{assert_flags, assert_no_flags};
 
 mod eor_immediate {
     use super::*;
@@ -15,7 +15,7 @@ mod eor_immediate {
         cpu.load_and_run_n_without_reset(vec![0x49, 0b1010_1010], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1111);
-        only_break_flag_set(&cpu);
+        assert_no_flags(&cpu);
     }
 
     #[test]
@@ -53,7 +53,7 @@ mod eor_zero_page {
         cpu.load_and_run_n_without_reset(vec![0x45, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1111);
-        only_break_flag_set(&cpu);
+        assert_no_flags(&cpu);
     }
 
     #[test]
@@ -94,7 +94,7 @@ mod eor_zero_page_x {
         cpu.load_and_run_n_without_reset(vec![0x55, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1111);
-        only_break_flag_set(&cpu);
+        assert_no_flags(&cpu);
     }
 
     #[test]
@@ -136,7 +136,7 @@ mod eor_absolute {
         cpu.load_and_run_n_without_reset(vec![0x4D, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1111);
-        only_break_flag_set(&cpu);
+        assert_no_flags(&cpu);
     }
 
     #[test]
@@ -177,7 +177,7 @@ mod eor_absolute_x {
         cpu.load_and_run_n_without_reset(vec![0x5D, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1111);
-        only_break_flag_set(&cpu);
+        assert_no_flags(&cpu);
     }
 
     #[test]
@@ -220,7 +220,7 @@ mod eor_absolute_y {
         cpu.load_and_run_n_without_reset(vec![0x59, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1111);
-        only_break_flag_set(&cpu);
+        assert_no_flags(&cpu);
     }
 
     #[test]
@@ -264,7 +264,7 @@ mod eor_indirect_x {
         cpu.load_and_run_n_without_reset(vec![0x41, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1111);
-        only_break_flag_set(&cpu);
+        assert_no_flags(&cpu);
     }
 
     #[test]
@@ -310,7 +310,7 @@ mod eor_indirect_y {
         cpu.load_and_run_n_without_reset(vec![0x51, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1111);
-        only_break_flag_set(&cpu);
+        assert_no_flags(&cpu);
     }
 
     #[test]

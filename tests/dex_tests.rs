@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use crate::common::{assert_flags, only_break_flag_set};
+use crate::common::{assert_flags, assert_no_flags};
 
 #[test]
 fn test_0xca_dex_implied_decrement_register_x_correcly() {
@@ -12,7 +12,7 @@ fn test_0xca_dex_implied_decrement_register_x_correcly() {
     cpu.load_and_run_n_without_reset(vec![0xCA], 1);
 
     assert_eq!(cpu.register_x, 0x01);
-    only_break_flag_set(&cpu);
+    assert_no_flags(&cpu);
 }
 
 #[test]

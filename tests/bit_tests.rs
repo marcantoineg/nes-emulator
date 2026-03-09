@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use common::{assert_flag, assert_flags, assert_no_flags, only_break_flag_set};
+use common::{assert_flag, assert_no_flags};
 
 #[test]
 fn test_0x24_bit_zero_page_sets_zero_flag_correctly() {

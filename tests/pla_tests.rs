@@ -1,7 +1,7 @@
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flags, only_break_flag_set};
+use common::{assert_flags, assert_no_flags};
 
 #[test]
 fn test_0x68_pla_implied_pulls_correctly_from_stack() {
@@ -11,11 +11,11 @@ fn test_0x68_pla_implied_pulls_correctly_from_stack() {
 
     cpu.load_and_run_n_without_reset(vec![0x68], 1);
 
-    only_break_flag_set(&cpu);
+    assert_no_flags(&cpu);
     assert_eq!(cpu.register_a, 0b0111_0101);
 
     assert_eq!(cpu.stack_pointer, 0xFF);
-    assert_ne!(cpu.memory.read(0x01FF), 0b0111_0101);
+    assert_eq!(cpu.memory.read(0x01FF), 0x00);
 }
 
 #[test]

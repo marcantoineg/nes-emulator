@@ -1,7 +1,7 @@
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use common::{assert_flag, assert_flags, assert_no_flags, only_break_flag_set};
+use common::{assert_flag, assert_flags, assert_no_flags};
 
 mod tests_0x6a_ror_implied {
     use super::*;

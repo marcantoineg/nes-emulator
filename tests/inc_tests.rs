@@ -3,7 +3,7 @@ use std::vec;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use crate::common::{assert_flags, only_break_flag_set};
+use crate::common::{assert_flags, assert_no_flags};
 
 mod inc_zero_page {
     use super::*;
@@ -16,7 +16,7 @@ mod inc_zero_page {
         cpu.load_and_run_n_without_reset(vec![0xE6, 0x01], 1);
 
         assert_eq!(cpu.memory.read(0x01), 0x02);
-        only_break_flag_set(&cpu);
+        assert_no_flags(&cpu);
     }
 
     #[test]

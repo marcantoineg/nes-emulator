@@ -1,7 +1,9 @@
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use crate::common::{assert_flags, assert_flags_without_break, only_break_flag_set};
+use crate::common::{
+    assert_flags, assert_flags_without_break, assert_no_flags,
+};
 
 #[test]
 fn test_cpu_flag_carry() {
@@ -19,8 +21,7 @@ fn test_0x18_clc_implied_clears_flag_correctly() {
 
     cpu.load_and_run_n_without_reset(vec![0x18], 1);
 
-    assert_eq!(cpu.status.bits(), 0b0010_0100);
-    only_break_flag_set(&cpu)
+    assert_no_flags(&cpu);
 }
 
 #[test]
@@ -52,7 +53,7 @@ fn test_0x58_cli_implied_clears_flag_correctly() {
     cpu.load_and_run_n_without_reset(vec![0x58], 1);
 
     assert_eq!(cpu.status.bits(), 0b0010_0000);
-    only_break_flag_set(&cpu)
+    assert_no_flags(&cpu);
 }
 
 #[test]
@@ -74,7 +75,7 @@ fn test_0xd8_cld_implied_clears_flag_correctly() {
     cpu.load_and_run_n_without_reset(vec![0xD8], 1);
 
     assert_eq!(cpu.status.bits(), 0b0010_0100);
-    only_break_flag_set(&cpu)
+    assert_no_flags(&cpu);
 }
 
 #[test]
@@ -105,7 +106,7 @@ fn test_0xb8_clv_implied_clears_flag_correctly() {
     cpu.load_and_run_n_without_reset(vec![0xB8], 1);
 
     assert_eq!(cpu.status.bits(), 0b0010_0100);
-    only_break_flag_set(&cpu)
+    assert_no_flags(&cpu);
 }
 
 #[test]
