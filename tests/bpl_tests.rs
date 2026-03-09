@@ -2,7 +2,7 @@ use nes_emulator::cpu::{Flags, CPU};
 use std::vec;
 
 mod common;
-use common::{assert_flags, assert_no_flags};
+use common::assert_flags;
 
 #[test]
 fn test_0x10_bpl_relative_branches_forward_correctly() {

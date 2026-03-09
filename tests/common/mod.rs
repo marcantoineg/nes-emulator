@@ -15,12 +15,15 @@ pub fn assert_flags_without_break(cpu: &CPU, enabled_flags: Vec<Flags>) {
     check_flags(cpu, enabled_flags);
 }
 
+
 /// Asserts that a single flag is set.
+#[allow(dead_code)]
 pub fn assert_flag(cpu: &CPU, flag: Flags) {
     assert_flags(cpu, vec![flag]);
 }
 
 /// Asserts that no flags are set.
+#[allow(dead_code)]
 pub fn assert_no_flags(cpu: &CPU) {
     assert_flags(cpu, vec![]);
 }
