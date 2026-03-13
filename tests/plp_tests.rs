@@ -1,4 +1,8 @@
+use std::vec;
+
 use nes_emulator::cpu::{Flags, CPU};
+
+use crate::common::assert_flags;
 
 mod common;
 
@@ -12,10 +16,10 @@ macro_rules! generate_0x28_plp_implied_single_flag_test {
             common::push_to_stack(&mut cpu, flag.bits());
 
 
-            cpu.load_and_run_without_reset(vec![0x28, 0x00]);
+            cpu.load_and_run_n_without_reset(vec![0x28], 1);
 
             assert_eq!(cpu.memory.read(0x01FF), 0x00);
-            assert_eq!(cpu.status.bits(), flag.bits());
+            assert_flags(&cpu, vec![flag]);
         }
     )*
     }
@@ -38,8 +42,16 @@ fn test_0x28_plp_implied_pulls_multiple_flags_correcly() {
         (Flags::Zero | Flags::Carry | Flags::Overflow | Flags::InteruptDisable).bits();
     common::push_to_stack(&mut cpu, expected_flags);
 
-    cpu.load_and_run_without_reset(vec![0x28, 0x00]);
+    cpu.load_and_run_n_without_reset(vec![0x28], 1);
 
     assert_eq!(cpu.memory.read(0x01FF), 0x00);
-    assert_eq!(cpu.status.bits(), expected_flags);
+    assert_flags(
+        &cpu,
+        vec![
+            Flags::Zero,
+            Flags::Carry,
+            Flags::Overflow,
+            Flags::InteruptDisable,
+        ],
+    );
 }

@@ -13,11 +13,11 @@ fn test_0xea_nop_implied_does_nothing_and_updates_pc() {
     cpu.status
         .insert(Flags::Zero | Flags::Overflow | Flags::Carry);
 
-    cpu.load_and_run_without_reset(vec![0xEA]);
+    cpu.load_and_run_n_without_reset(vec![0xEA], 1);
 
     assert_eq!(cpu.register_a, 0x01);
     assert_eq!(cpu.register_x, 0x02);
     assert_eq!(cpu.register_y, 0x03);
     assert_flags(&cpu, vec![Flags::Zero, Flags::Overflow, Flags::Carry]);
-    assert_eq!(cpu.program_counter, 0x8002);
+    assert_eq!(cpu.program_counter, 0x8001);
 }

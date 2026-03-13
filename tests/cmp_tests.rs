@@ -12,9 +12,9 @@ mod cmp_immediate {
         let mut cpu = CPU::new();
         cpu.register_a = 0x01;
 
-        cpu.load_and_run_without_reset(vec![0xC9, 0x05, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xC9, 0x05], 1);
         assert_eq!(cpu.register_a, 0x01);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 
     #[test]
@@ -22,7 +22,7 @@ mod cmp_immediate {
         let mut cpu = CPU::new();
         cpu.register_a = 0x26;
 
-        cpu.load_and_run_without_reset(vec![0xC9, 0x26, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xC9, 0x26], 1);
         assert_eq!(cpu.register_a, 0x26);
         assert_flags(&cpu, vec![Flags::Carry, Flags::Zero]);
     }
@@ -32,9 +32,9 @@ mod cmp_immediate {
         let mut cpu = CPU::new();
         cpu.register_a = 0x05;
 
-        cpu.load_and_run_without_reset(vec![0xC9, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xC9, 0x01], 1);
         assert_eq!(cpu.register_a, 0x05);
-        assert_flag(&cpu, Flags::Carry);
+        assert_flags(&cpu, vec![Flags::Carry]);
     }
 }
 
@@ -47,11 +47,11 @@ mod cmp_zero_page {
         cpu.register_a = 0x01;
         cpu.memory.write(0x01, 0x05);
 
-        cpu.load_and_run_without_reset(vec![0xC5, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xC5, 0x01], 1);
 
         assert_eq!(cpu.register_a, 0x01);
         assert_eq!(cpu.memory.read(0x01), 0x05);
-        assert_flag(&cpu, Flags::Negative)
+        assert_flags(&cpu, vec![Flags::Negative])
     }
 
     #[test]
@@ -60,7 +60,7 @@ mod cmp_zero_page {
         cpu.register_a = 0x26;
         cpu.memory.write(0x01, 0x26);
 
-        cpu.load_and_run_without_reset(vec![0xC5, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xC5, 0x01], 1);
 
         assert_eq!(cpu.register_a, 0x26);
         assert_eq!(cpu.memory.read(0x01), 0x26);
@@ -73,10 +73,10 @@ mod cmp_zero_page {
         cpu.register_a = 0x05;
         cpu.memory.write(0x01, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xC5, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xC5, 0x01], 1);
         assert_eq!(cpu.register_a, 0x05);
         assert_eq!(cpu.memory.read(0x01), 0x01);
-        assert_flag(&cpu, Flags::Carry);
+        assert_flags(&cpu, vec![Flags::Carry]);
     }
 }
 
@@ -90,11 +90,11 @@ mod cmp_zero_page_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x02, 0x05);
 
-        cpu.load_and_run_without_reset(vec![0xD5, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xD5, 0x01], 1);
 
         assert_eq!(cpu.register_a, 0x01);
         assert_eq!(cpu.memory.read(0x02), 0x05);
-        assert_flag(&cpu, Flags::Negative)
+        assert_flags(&cpu, vec![Flags::Negative])
     }
 
     #[test]
@@ -104,7 +104,7 @@ mod cmp_zero_page_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x02, 0x26);
 
-        cpu.load_and_run_without_reset(vec![0xD5, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xD5, 0x01], 1);
 
         assert_eq!(cpu.register_a, 0x26);
         assert_eq!(cpu.memory.read(0x02), 0x26);
@@ -118,10 +118,10 @@ mod cmp_zero_page_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x02, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xD5, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xD5, 0x01], 1);
         assert_eq!(cpu.register_a, 0x05);
         assert_eq!(cpu.memory.read(0x02), 0x01);
-        assert_flag(&cpu, Flags::Carry);
+        assert_flags(&cpu, vec![Flags::Carry]);
     }
 }
 
@@ -134,7 +134,7 @@ mod cmp_absolute {
         cpu.register_a = 0x01;
         cpu.memory.write(0x1010, 0x05);
 
-        cpu.load_and_run_without_reset(vec![0xCD, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xCD, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x01);
         assert_eq!(cpu.memory.read(0x1010), 0x05);
@@ -147,7 +147,7 @@ mod cmp_absolute {
         cpu.register_a = 0x26;
         cpu.memory.write(0x1010, 0x26);
 
-        cpu.load_and_run_without_reset(vec![0xCD, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xCD, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x26);
         assert_eq!(cpu.memory.read(0x1010), 0x26);
@@ -161,7 +161,7 @@ mod cmp_absolute {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1010, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xCD, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xCD, 0x10, 0x10], 1);
         assert_eq!(cpu.register_a, 0x05);
         assert_eq!(cpu.memory.read(0x1010), 0x01);
         assert_flag(&cpu, Flags::Carry);
@@ -178,7 +178,7 @@ mod cmp_absolute_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1011, 0x05);
 
-        cpu.load_and_run_without_reset(vec![0xDD, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xDD, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x01);
         assert_eq!(cpu.memory.read(0x1011), 0x05);
@@ -192,7 +192,7 @@ mod cmp_absolute_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1011, 0x26);
 
-        cpu.load_and_run_without_reset(vec![0xDD, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xDD, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x26);
         assert_eq!(cpu.memory.read(0x1011), 0x26);
@@ -206,7 +206,7 @@ mod cmp_absolute_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1011, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xDD, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xDD, 0x10, 0x10], 1);
         assert_eq!(cpu.register_a, 0x05);
         assert_eq!(cpu.memory.read(0x1011), 0x01);
         assert_flag(&cpu, Flags::Carry);
@@ -223,7 +223,7 @@ mod cmp_absolute_y {
         cpu.register_y = 0x01;
         cpu.memory.write(0x1011, 0x05);
 
-        cpu.load_and_run_without_reset(vec![0xD9, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xD9, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x01);
         assert_eq!(cpu.memory.read(0x1011), 0x05);
@@ -237,7 +237,7 @@ mod cmp_absolute_y {
         cpu.register_y = 0x01;
         cpu.memory.write(0x1011, 0x26);
 
-        cpu.load_and_run_without_reset(vec![0xD9, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xD9, 0x10, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x26);
         assert_eq!(cpu.memory.read(0x1011), 0x26);
@@ -251,7 +251,7 @@ mod cmp_absolute_y {
         cpu.register_y = 0x01;
         cpu.memory.write(0x1011, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xD9, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xD9, 0x10, 0x10], 1);
         assert_eq!(cpu.register_a, 0x05);
         assert_eq!(cpu.memory.read(0x1011), 0x01);
         assert_flag(&cpu, Flags::Carry);
@@ -269,7 +269,7 @@ mod cmp_indirect_x {
         cpu.memory.write_u16(0x11, 0x1010);
         cpu.memory.write(0x1010, 0x05);
 
-        cpu.load_and_run_without_reset(vec![0xC1, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xC1, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x01);
         assert_eq!(cpu.memory.read(0x1010), 0x05);
@@ -284,7 +284,7 @@ mod cmp_indirect_x {
         cpu.memory.write_u16(0x11, 0x1010);
         cpu.memory.write(0x1010, 0x26);
 
-        cpu.load_and_run_without_reset(vec![0xC1, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xC1, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x26);
         assert_eq!(cpu.memory.read(0x1010), 0x26);
@@ -299,7 +299,7 @@ mod cmp_indirect_x {
         cpu.memory.write_u16(0x11, 0x1010);
         cpu.memory.write(0x1010, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xC1, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xC1, 0x10], 1);
         assert_eq!(cpu.register_a, 0x05);
         assert_eq!(cpu.memory.read(0x1010), 0x01);
         assert_flag(&cpu, Flags::Carry);
@@ -317,7 +317,7 @@ mod cmp_indirect_y {
         cpu.memory.write_u16(0x10, 0x1010);
         cpu.memory.write(0x1011, 0x05);
 
-        cpu.load_and_run_without_reset(vec![0xD1, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xD1, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x01);
         assert_eq!(cpu.memory.read(0x1011), 0x05);
@@ -332,7 +332,7 @@ mod cmp_indirect_y {
         cpu.memory.write_u16(0x10, 0x1010);
         cpu.memory.write(0x1011, 0x26);
 
-        cpu.load_and_run_without_reset(vec![0xD1, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xD1, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x26);
         assert_eq!(cpu.memory.read(0x1011), 0x26);
@@ -347,7 +347,7 @@ mod cmp_indirect_y {
         cpu.memory.write_u16(0x10, 0x1010);
         cpu.memory.write(0x1011, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xD1, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xD1, 0x10], 1);
         assert_eq!(cpu.register_a, 0x05);
         assert_eq!(cpu.memory.read(0x1011), 0x01);
         assert_flag(&cpu, Flags::Carry);

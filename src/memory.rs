@@ -1,5 +1,5 @@
 pub struct Memory {
-    memory: [u8; 0xFFFF],
+    memory: [u8; 0x10000],
     debug: bool,
     hex_dump: Vec<u8>,
 }
@@ -7,7 +7,7 @@ pub struct Memory {
 impl Memory {
     pub fn new() -> Self {
         Memory {
-            memory: [0; 0xFFFF],
+            memory: [0; 0x10000],
             debug: false,
             hex_dump: vec![],
         }

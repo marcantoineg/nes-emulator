@@ -35,6 +35,7 @@ bitflags! {
         const Unused = 0b0010_0000;
         const Overflow = 0b0100_0000;
         const Negative = 0b1000_0000;
+        const None = 0b0000_0000;
     }
 }
 
@@ -69,6 +70,17 @@ impl CPU {
         self.reset(false);
         self.memory.set_debug();
         self.run();
+    }
+
+    pub fn load_without_reset(&mut self, program: Vec<u8>) {
+        self.load(program);
+        self.reset(false);
+        self.memory.set_debug();
+    }
+
+    pub fn load_and_run_n_without_reset(&mut self, program: Vec<u8>, instruction_count: usize) {
+        self.load_without_reset(program);
+        self.run_n(instruction_count);
     }
 
     fn load(&mut self, program: Vec<u8>) {
@@ -134,73 +146,92 @@ impl CPU {
         }
     }
 
-    fn run(&mut self) {
+    pub fn step(&mut self) -> bool {
         use OpName::*;
 
-        loop {
-            let op_code = self.memory.read(self.program_counter);
-            let op = OPERATIONS_MAP
-                .get(&op_code)
-                .unwrap_or_else(|| panic!("unrecognized operation: 0x{:02X?}", op_code));
+        let op_code = self.memory.read(self.program_counter);
+        let op = OPERATIONS_MAP
+            .get(&op_code)
+            .unwrap_or_else(|| panic!("unrecognized operation: 0x{:02X?}", op_code));
 
-            self.program_counter += 1;
+        self.program_counter += 1;
 
-            match op.mnemonic_name {
-                ADC => self.adc(&op.addressing_mode),
-                AND => self.and(&op.addressing_mode),
-                ASL => self.asl(&op.addressing_mode),
-                BCC => self.bcc(),
-                BCS => self.bcs(),
-                BEQ => self.beq(),
-                BMI => self.bmi(),
-                BNE => self.bne(),
-                BPL => self.bpl(),
-                BVC => self.bvc(),
-                BVS => self.bvs(),
-                BIT => self.bit(&op.addressing_mode),
-                BRK => return, // todo: actually implement this
-                CLC => self.set_carry_flag(false),
-                CLD => self.set_decimal_flag(false),
-                CLI => self.set_interupt_flag(false),
-                CLV => self.set_overflow_flag(false),
-                CMP => self.cmp(&op.addressing_mode),
-                CPX => self.cpx(&op.addressing_mode),
-                CPY => self.cpy(&op.addressing_mode),
-                DEC => self.dec(&op.addressing_mode),
-                DEX => self.dex(),
-                DEY => self.dey(),
-                EOR => self.eor(&op.addressing_mode),
-                INC => self.inc(&op.addressing_mode),
-                INX => self.inx(),
-                INY => self.iny(),
-                JMP => self.jmp(&op.addressing_mode),
-                JSR => self.jsr(),
-                LDA => self.lda(&op.addressing_mode),
-                LDX => self.ldx(&op.addressing_mode),
-                LDY => self.ldy(&op.addressing_mode),
-                LSR => self.lsr(&op.addressing_mode),
-                NOP => {}
-                ORA => self.ora(&op.addressing_mode),
-                PHA => self.pha(),
-                PHP => self.php(),
-                PLA => self.pla(),
-                PLP => self.plp(),
-                ROL => self.rol(&op.addressing_mode),
-                ROR => self.ror(&op.addressing_mode),
-                RTI => self.rti(),
-                TAX => self.tax(),
-                TAY => self.tay(),
-
-                _ => todo!("op not implemented"),
+        match op.mnemonic_name {
+            ADC => self.adc(&op.addressing_mode),
+            AND => self.and(&op.addressing_mode),
+            ASL => self.asl(&op.addressing_mode),
+            BCC => self.bcc(),
+            BCS => self.bcs(),
+            BEQ => self.beq(),
+            BMI => self.bmi(),
+            BNE => self.bne(),
+            BPL => self.bpl(),
+            BVC => self.bvc(),
+            BVS => self.bvs(),
+            BIT => self.bit(&op.addressing_mode),
+            BRK => {
+                self.brk();
+                return false;
             }
+            CLC => self.set_carry_flag(false),
+            CLD => self.set_decimal_flag(false),
+            CLI => self.set_interupt_flag(false),
+            CLV => self.set_overflow_flag(false),
+            CMP => self.cmp(&op.addressing_mode),
+            CPX => self.cpx(&op.addressing_mode),
+            CPY => self.cpy(&op.addressing_mode),
+            DEC => self.dec(&op.addressing_mode),
+            DEX => self.dex(),
+            DEY => self.dey(),
+            EOR => self.eor(&op.addressing_mode),
+            INC => self.inc(&op.addressing_mode),
+            INX => self.inx(),
+            INY => self.iny(),
+            JMP => self.jmp(&op.addressing_mode),
+            JSR => self.jsr(),
+            LDA => self.lda(&op.addressing_mode),
+            LDX => self.ldx(&op.addressing_mode),
+            LDY => self.ldy(&op.addressing_mode),
+            LSR => self.lsr(&op.addressing_mode),
+            NOP => {}
+            ORA => self.ora(&op.addressing_mode),
+            PHA => self.pha(),
+            PHP => self.php(),
+            PLA => self.pla(),
+            PLP => self.plp(),
+            ROL => self.rol(&op.addressing_mode),
+            ROR => self.ror(&op.addressing_mode),
+            RTI => self.rti(),
+            TAX => self.tax(),
+            TAY => self.tay(),
 
-            match op.mnemonic_name {
-                JMP | JSR => {
-                    // no-op
-                }
-                _ => {
-                    self.program_counter += (op.bytes - 1) as u16;
-                }
+            _ => todo!("op not implemented"),
+        }
+
+        match op.mnemonic_name {
+            JMP | JSR => {
+                // no-op
+            }
+            _ => {
+                self.program_counter += (op.bytes - 1) as u16;
+            }
+        }
+
+        true
+    }
+
+    pub fn run_n(&mut self, instruction_count: usize) {
+        for _ in 0..instruction_count {
+            if !self.step() {
+                return;
+            }
+        }
+    }
+
+    fn run(&mut self) {
+        loop {
+            if !self.step() {
+                return;
             }
         }
     }
@@ -296,7 +327,7 @@ impl CPU {
         }
 
         let usigned_offset = (offset & 0b0111_1111) as u16;
-        if offset & 0b1000_0000 != 0 {
+        if offset & Flags::Negative.bits() != 0 {
             self.program_counter -= usigned_offset;
         } else {
             self.program_counter += usigned_offset;
@@ -310,6 +341,28 @@ impl CPU {
         self.set_zero_flag(self.register_a & mem_value);
         self.set_negative_flag(mem_value & Flags::Negative.bits());
         self.set_overflow_flag(mem_value & Flags::Overflow.bits() != 0);
+    }
+
+    fn brk(&mut self) {
+        // Push return address (PC is already incremented in run loop, so PC+1 is the next instruction)
+        self.push_u16_to_stack(self.program_counter + 1);
+
+        // Set Break flag before pushing status
+        self.status.insert(Flags::Break);
+
+        // Push CPU status register
+        self.push_to_stack(self.status.bits());
+
+        // Set Interrupt Disable flag
+        self.set_interupt_flag(true);
+
+        // In a real 6502, this would jump to the interrupt vector.
+        // However, for test purposes, we return to stop execution.
+        // A complete implementation would jump to 0xFFFE and continue.
+        // self.program_counter = self.memory.read_u16(0xFFFE);
+
+        // Return to stop CPU execution (matches test expectations)
+        return;
     }
 
     fn cmp(&mut self, mode: &AddressingMode) {
@@ -677,7 +730,10 @@ mod tests {
         assert_eq!(cpu.register_a, 0);
         assert_eq!(cpu.register_x, 0);
         assert_eq!(cpu.register_y, 0);
-        assert_eq!(cpu.status.bits(), 0b0010_0000);
+        assert_eq!(
+            cpu.status.bits(),
+            Flags::InteruptDisable.bits() | Flags::Break.bits() | Flags::Unused.bits()
+        );
     }
 
     #[test]

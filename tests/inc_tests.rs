@@ -3,7 +3,7 @@ use std::vec;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use crate::common::{assert_flag, assert_no_flags};
+use crate::common::{assert_flags, assert_no_flags};
 
 mod inc_zero_page {
     use super::*;
@@ -13,7 +13,7 @@ mod inc_zero_page {
         let mut cpu = CPU::new();
         cpu.memory.write(0x01, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xE6, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xE6, 0x01], 1);
 
         assert_eq!(cpu.memory.read(0x01), 0x02);
         assert_no_flags(&cpu);
@@ -24,10 +24,10 @@ mod inc_zero_page {
         let mut cpu = CPU::new();
         cpu.memory.write(0x01, 0xFF);
 
-        cpu.load_and_run_without_reset(vec![0xE6, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xE6, 0x01], 1);
 
         assert_eq!(cpu.memory.read(0x01), 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -35,10 +35,10 @@ mod inc_zero_page {
         let mut cpu = CPU::new();
         cpu.memory.write(0x01, 0x7F);
 
-        cpu.load_and_run_without_reset(vec![0xE6, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xE6, 0x01], 1);
 
         assert_eq!(cpu.memory.read(0x01), 0x80);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
 
@@ -51,10 +51,10 @@ mod inc_zero_page_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x02, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xF6, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xF6, 0x01], 1);
 
         assert_eq!(cpu.memory.read(0x02), 0x02);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -63,10 +63,10 @@ mod inc_zero_page_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x02, 0xFF);
 
-        cpu.load_and_run_without_reset(vec![0xF6, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xF6, 0x01], 1);
 
         assert_eq!(cpu.memory.read(0x01), 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -75,10 +75,10 @@ mod inc_zero_page_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x02, 0x7F);
 
-        cpu.load_and_run_without_reset(vec![0xF6, 0x01, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xF6, 0x01], 1);
 
         assert_eq!(cpu.memory.read(0x02), 0x80);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
 
@@ -90,10 +90,10 @@ mod inc_absolute {
         let mut cpu = CPU::new();
         cpu.memory.write(0x1010, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xEE, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xEE, 0x10, 0x10], 1);
 
         assert_eq!(cpu.memory.read(0x1010), 0x02);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -101,10 +101,10 @@ mod inc_absolute {
         let mut cpu = CPU::new();
         cpu.memory.write(0x1010, 0xFF);
 
-        cpu.load_and_run_without_reset(vec![0xEE, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xEE, 0x10, 0x10], 1);
 
         assert_eq!(cpu.memory.read(0x1010), 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -112,10 +112,10 @@ mod inc_absolute {
         let mut cpu = CPU::new();
         cpu.memory.write(0x1010, 0x7F);
 
-        cpu.load_and_run_without_reset(vec![0xEE, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xEE, 0x10, 0x10], 1);
 
         assert_eq!(cpu.memory.read(0x1010), 0x80);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
 
@@ -128,10 +128,10 @@ mod inc_absolute_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1011, 0x01);
 
-        cpu.load_and_run_without_reset(vec![0xFE, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xFE, 0x10, 0x10], 1);
 
         assert_eq!(cpu.memory.read(0x1011), 0x02);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -140,10 +140,10 @@ mod inc_absolute_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1011, 0xFF);
 
-        cpu.load_and_run_without_reset(vec![0xFE, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xFE, 0x10, 0x10], 1);
 
         assert_eq!(cpu.memory.read(0x1011), 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -152,9 +152,9 @@ mod inc_absolute_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1011, 0x7F);
 
-        cpu.load_and_run_without_reset(vec![0xFE, 0x10, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0xFE, 0x10, 0x10], 1);
 
         assert_eq!(cpu.memory.read(0x1011), 0x80);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }

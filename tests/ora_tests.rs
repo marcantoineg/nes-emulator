@@ -1,8 +1,7 @@
-use common::assert_flag;
+use common::assert_flags;
 use nes_emulator::cpu::{Flags, CPU};
 
 mod common;
-use crate::common::assert_no_flags;
 
 mod ora_immediate {
     use super::*;
@@ -12,10 +11,10 @@ mod ora_immediate {
         let mut cpu = CPU::new();
         cpu.register_a = 0b0101_0101;
 
-        cpu.load_and_run_without_reset(vec![0x09, 0b0000_0101, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x09, 0b0000_0101], 1);
 
         assert_eq!(cpu.register_a, 0b0101_0101);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -23,10 +22,10 @@ mod ora_immediate {
         let mut cpu = CPU::new();
         cpu.register_a = 0b0000_0000;
 
-        cpu.load_and_run_without_reset(vec![0x09, 0b0000_0000, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x09, 0b0000_0000], 1);
 
         assert_eq!(cpu.register_a, 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -34,10 +33,10 @@ mod ora_immediate {
         let mut cpu = CPU::new();
         cpu.register_a = 0b0000_1111;
 
-        cpu.load_and_run_without_reset(vec![0x09, 0b1000_0000, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x09, 0b1000_0000], 1);
 
         assert_eq!(cpu.register_a, 0b1000_1111);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
 
@@ -50,10 +49,10 @@ mod ora_zero_page {
         cpu.register_a = 0b0101_0101;
         cpu.memory.write(0x0010, 0b0011_1100);
 
-        cpu.load_and_run_without_reset(vec![0x05, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x05, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1101);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -62,10 +61,10 @@ mod ora_zero_page {
         cpu.register_a = 0b0000_0000;
         cpu.memory.write(0x0010, 0b0000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x05, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x05, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -74,10 +73,10 @@ mod ora_zero_page {
         cpu.register_a = 0b0000_1111;
         cpu.memory.write(0x0010, 0b1000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x05, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x05, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b1000_1111);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
 
@@ -91,10 +90,10 @@ mod ora_zero_page_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x0011, 0b0011_1100);
 
-        cpu.load_and_run_without_reset(vec![0x15, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x15, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1101);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -104,10 +103,10 @@ mod ora_zero_page_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x0011, 0b0000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x15, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x15, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -117,10 +116,10 @@ mod ora_zero_page_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x0011, 0b1000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x15, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x15, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b1000_1111);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
 
@@ -133,10 +132,10 @@ mod ora_absolute {
         cpu.register_a = 0b0101_0101;
         cpu.memory.write(0x1011, 0b0011_1100);
 
-        cpu.load_and_run_without_reset(vec![0x0D, 0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x0D, 0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1101);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -145,10 +144,10 @@ mod ora_absolute {
         cpu.register_a = 0b0000_0000;
         cpu.memory.write(0x1011, 0b0000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x0D, 0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x0D, 0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -157,10 +156,10 @@ mod ora_absolute {
         cpu.register_a = 0b0000_1111;
         cpu.memory.write(0x1011, 0b1000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x0D, 0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x0D, 0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b1000_1111);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
 
@@ -174,10 +173,10 @@ mod ora_absolute_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1012, 0b0011_1100);
 
-        cpu.load_and_run_without_reset(vec![0x1D, 0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x1D, 0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1101);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -187,10 +186,10 @@ mod ora_absolute_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1012, 0b0000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x1D, 0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x1D, 0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -200,10 +199,10 @@ mod ora_absolute_x {
         cpu.register_x = 0x01;
         cpu.memory.write(0x1012, 0b1000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x1D, 0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x1D, 0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b1000_1111);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
 
@@ -217,10 +216,10 @@ mod ora_absolute_y {
         cpu.register_y = 0x01;
         cpu.memory.write(0x1012, 0b0011_1100);
 
-        cpu.load_and_run_without_reset(vec![0x19, 0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x19, 0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0111_1101);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -230,10 +229,10 @@ mod ora_absolute_y {
         cpu.register_y = 0x01;
         cpu.memory.write(0x1012, 0b0000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x19, 0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x19, 0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -243,10 +242,10 @@ mod ora_absolute_y {
         cpu.register_y = 0x01;
         cpu.memory.write(0x1012, 0b1000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x19, 0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x19, 0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b1000_1111);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
 
@@ -261,10 +260,10 @@ mod ora_indirect_x {
         cpu.memory.write_u16(0x0011, 0x1010);
         cpu.memory.write(0x1010, 0b0100_0100);
 
-        cpu.load_and_run_without_reset(vec![0x01, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x01, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0101_0101);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -275,10 +274,10 @@ mod ora_indirect_x {
         cpu.memory.write_u16(0x0011, 0x1010);
         cpu.memory.write(0x1010, 0b0000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x01, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x01, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -289,10 +288,10 @@ mod ora_indirect_x {
         cpu.memory.write_u16(0x0011, 0x1010);
         cpu.memory.write(0x1010, 0b1000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x01, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x01, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b1000_1111);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
 
@@ -307,10 +306,10 @@ mod ora_indirect_y {
         cpu.memory.write_u16(0x0010, 0x1010);
         cpu.memory.write(0x1011, 0b0100_0100);
 
-        cpu.load_and_run_without_reset(vec![0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b0101_0101);
-        assert_no_flags(&cpu);
+        assert_flags(&cpu, vec![]);
     }
 
     #[test]
@@ -321,10 +320,10 @@ mod ora_indirect_y {
         cpu.memory.write_u16(0x0010, 0x1010);
         cpu.memory.write(0x1011, 0b0000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0x00);
-        assert_flag(&cpu, Flags::Zero);
+        assert_flags(&cpu, vec![Flags::Zero]);
     }
 
     #[test]
@@ -335,9 +334,9 @@ mod ora_indirect_y {
         cpu.memory.write_u16(0x0010, 0x1010);
         cpu.memory.write(0x1011, 0b1000_0000);
 
-        cpu.load_and_run_without_reset(vec![0x11, 0x10, 0x00]);
+        cpu.load_and_run_n_without_reset(vec![0x11, 0x10], 1);
 
         assert_eq!(cpu.register_a, 0b1000_1111);
-        assert_flag(&cpu, Flags::Negative);
+        assert_flags(&cpu, vec![Flags::Negative]);
     }
 }
